@@ -95,7 +95,6 @@ churn_prediction_EXTERNAL_OBJECTS =
 
 churn_prediction: CMakeFiles/churn_prediction.dir/churn_prediction.cpp.o
 churn_prediction: CMakeFiles/churn_prediction.dir/build.make
-churn_prediction: /opt/homebrew/lib/libxgboost.dylib
 churn_prediction: CMakeFiles/churn_prediction.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir="/Users/nortonle/Library/CloudStorage/OneDrive-Personal/Documents/Master studies/Master thesis/testing claude code/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable churn_prediction"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/churn_prediction.dir/link.txt --verbose=$(VERBOSE)

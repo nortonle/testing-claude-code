@@ -4,17 +4,16 @@
  * Customer Churn Prediction — pure C++17 implementation
  * Mirrors the Python/scikit-learn notebook (churn_prediction.ipynb)
  *
- * Models   : Logistic Regression, Decision Tree, Random Forest, XGBoost
+ * Models   : Logistic Regression, Decision Tree, Random Forest, XGBoost (from scratch)
  * HPO      : Grid Search, Random Search, Bayesian Optimisation (GP-EI)
  * Imbalance: SMOTE (in-fold, like imblearn.pipeline)
  * CV       : 5-fold Stratified K-Fold
  * Metrics  : Accuracy, Precision, Recall, F1, AUC-ROC
  *
- * External dependency: XGBoost C API  (https://xgboost.readthedocs.io)
+ * Zero external dependencies — all algorithms implemented from scratch in pure C++17.
  *
  * Build (example):
- *   g++ -O2 -std=c++17 churn_prediction.cpp -o churn_prediction \
- *       $(pkg-config --cflags --libs xgboost)
+ *   g++ -O2 -std=c++17 churn_prediction.cpp -o churn_prediction
  *
  *   Or with CMakeLists.txt:   cmake -B build && cmake --build build
  *
@@ -47,8 +46,6 @@
 #include <variant>
 #include <vector>
 
-// XGBoost C API
-#include <xgboost/c_api.h>
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Global type aliases
@@ -502,17 +499,6 @@ static Metrics compute_metrics(const IVector& yt, const IVector& yp, const Vecto
     return m;
 }
 
-static Metrics avg_metrics(const std::vector<Metrics>& ms) {
-    Metrics a;
-    for (const auto& m : ms) {
-        a.accuracy += m.accuracy; a.precision += m.precision;
-        a.recall   += m.recall;   a.f1        += m.f1;
-        a.auc_roc  += m.auc_roc;
-    }
-    double n = (double)ms.size();
-    a.accuracy/=n; a.precision/=n; a.recall/=n; a.f1/=n; a.auc_roc/=n;
-    return a;
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SECTION 6 — ML MODELS
@@ -774,75 +760,213 @@ public:
     std::string name() const override { return "RandomForest"; }
 };
 
-// ── 6.4  XGBoost (wraps C API) ───────────────────────────────────────────────
+// ── 6.4  XGBoost — Gradient Boosted Trees (pure C++, from scratch) ───────────
+//
+//  Algorithm (mirrors the original XGBoost paper, Chen & Guestrin 2016):
+//
+//  Loss        : binary log-loss  L = -[y·log(p) + (1-y)·log(1-p)]
+//  Gradient    : g_i  = p_i - y_i          (∂L/∂F, first-order)
+//  Hessian     : h_i  = p_i·(1-p_i)        (∂²L/∂F², second-order)
+//
+//  Tree building (exact greedy):
+//    Split gain = 0.5 · [ G_L²/(H_L+λ) + G_R²/(H_R+λ)
+//                        - (G_L+G_R)²/(H_L+H_R+λ) ]  −  γ
+//    Leaf weight w* = −G / (H + λ)
+//
+//  Regularisation : λ (L2 on leaf weights), γ (minimum gain to split)
+//  Subsampling    : subsample_ (rows), colsample_ (columns per tree)
+//  Shrinkage      : learning_rate (η)
+
+struct XGBNode {
+    int    feat    = -1;
+    double thresh  = 0.0;
+    int    left    = -1, right = -1;
+    double weight  = 0.0;
+    bool   is_leaf = false;
+};
+
+class XGBTree {
+public:
+    std::vector<XGBNode>       nodes_;
+    std::vector<std::size_t>   feat_idx_;   // column subset used for this tree
+
+    double predict_one(const Vector& x) const {
+        int ni = 0;
+        while (!nodes_[ni].is_leaf)
+            ni = x[nodes_[ni].feat] <= nodes_[ni].thresh
+                 ? nodes_[ni].left : nodes_[ni].right;
+        return nodes_[ni].weight;
+    }
+};
+
 class XGBoostClassifier : public Classifier {
     int    n_est_, max_depth_;
-    double lr_, subsample_, colsample_;
-    BoosterHandle booster_ = nullptr;
+    double lr_, subsample_, colsample_, lambda_, gamma_;
+    unsigned seed_;
+    std::vector<XGBTree> trees_;
+    double base_score_ = 0.0;
 
-    static std::vector<float> to_float(const Matrix& X) {
-        std::vector<float> d(X.size()*X[0].size());
-        for (std::size_t i=0;i<X.size();++i)
-            for (std::size_t j=0;j<X[0].size();++j)
-                d[i*X[0].size()+j] = (float)X[i][j];
-        return d;
+    static double sigmoid(double x) {
+        // clamp to prevent exp overflow
+        x = std::max(-35.0, std::min(35.0, x));
+        return 1.0 / (1.0 + std::exp(-x));
+    }
+
+    // Recursively build one tree node.
+    // Returns index of the new node inside tree.nodes_.
+    int build_node(XGBTree& tree,
+                   const Matrix& X,
+                   const Vector& g, const Vector& h,
+                   const std::vector<std::size_t>& idx,
+                   int depth) {
+        int ni = (int)tree.nodes_.size();
+        tree.nodes_.emplace_back();
+
+        // Aggregate gradients / hessians at this node
+        double G = 0.0, H = 0.0;
+        for (std::size_t i : idx) { G += g[i]; H += h[i]; }
+
+        // Optimal leaf weight (closed-form solution)
+        double w_opt = -G / (H + lambda_);
+
+        bool force_leaf = (max_depth_ >= 0 && depth >= max_depth_)
+                       || (int)idx.size() < 2;
+
+        if (!force_leaf) {
+            int    best_feat   = -1;
+            double best_thresh = 0.0;
+            double best_gain   = gamma_;   // split only if gain > γ
+
+            for (std::size_t f : tree.feat_idx_) {
+                // Sort samples by this feature value
+                std::vector<std::pair<double, std::size_t>> sv;
+                sv.reserve(idx.size());
+                for (std::size_t i : idx) sv.push_back({X[i][f], i});
+                std::sort(sv.begin(), sv.end());
+
+                double GL = 0.0, HL = 0.0;
+                for (std::size_t k = 0; k + 1 < sv.size(); ++k) {
+                    GL += g[sv[k].second];
+                    HL += h[sv[k].second];
+
+                    // Skip tied feature values (no valid split point between them)
+                    if (sv[k].first == sv[k+1].first) continue;
+
+                    // Enforce minimum child hessian (≈ min_child_weight = 1)
+                    double GR = G - GL, HR = H - HL;
+                    if (HL < 1.0 || HR < 1.0) continue;
+
+                    double gain = 0.5 * ( GL*GL / (HL + lambda_)
+                                        + GR*GR / (HR + lambda_)
+                                        - G*G  / (H  + lambda_) ) - gamma_;
+                    if (gain > best_gain) {
+                        best_gain   = gain;
+                        best_feat   = (int)f;
+                        best_thresh = (sv[k].first + sv[k+1].first) / 2.0;
+                    }
+                }
+            }
+
+            if (best_feat >= 0) {
+                std::vector<std::size_t> li, ri;
+                for (std::size_t i : idx)
+                    (X[i][best_feat] <= best_thresh ? li : ri).push_back(i);
+
+                tree.nodes_[ni].feat   = best_feat;
+                tree.nodes_[ni].thresh = best_thresh;
+                tree.nodes_[ni].left   = build_node(tree, X, g, h, li, depth + 1);
+                tree.nodes_[ni].right  = build_node(tree, X, g, h, ri, depth + 1);
+                return ni;
+            }
+        }
+
+        // Leaf
+        tree.nodes_[ni].is_leaf = true;
+        tree.nodes_[ni].weight  = w_opt;
+        return ni;
     }
 
 public:
     explicit XGBoostClassifier(int n_est=100, int max_depth=5,
-                                double lr=0.1, double sub=1.0, double col=1.0)
+                                double lr=0.1,  double sub=1.0,
+                                double col=1.0, double lambda=1.0,
+                                double gamma=0.0, unsigned seed=42)
         : n_est_(n_est), max_depth_(max_depth), lr_(lr),
-          subsample_(sub), colsample_(col) {}
-
-    ~XGBoostClassifier() { if (booster_) XGBoosterFree(booster_); }
+          subsample_(sub), colsample_(col),
+          lambda_(lambda), gamma_(gamma), seed_(seed) {}
 
     void fit(const Matrix& X, const IVector& y) override {
-        if (booster_) { XGBoosterFree(booster_); booster_ = nullptr; }
-
+        trees_.clear();
         std::size_t n = X.size(), p = X[0].size();
-        auto data = to_float(X);
-        DMatrixHandle dtr;
-        XGDMatrixCreateFromMat(data.data(), (bst_ulong)n, (bst_ulong)p,
-                               std::numeric_limits<float>::quiet_NaN(), &dtr);
+        std::mt19937 rng(seed_);
 
-        std::vector<float> lab(n);
-        for (std::size_t i=0;i<n;++i) lab[i] = (float)y[i];
-        XGDMatrixSetFloatInfo(dtr, "label", lab.data(), (bst_ulong)n);
+        // Base score = log-odds of positive-class prior
+        double pos = (double)std::count(y.begin(), y.end(), 1);
+        double neg = (double)n - pos;
+        base_score_ = (pos > 0 && neg > 0) ? std::log(pos / neg) : 0.0;
 
-        XGBoosterCreate(&dtr, 1, &booster_);
-        auto sp = [&](const char* k, const std::string& v){
-            XGBoosterSetParam(booster_, k, v.c_str()); };
-        sp("max_depth",        std::to_string(max_depth_));
-        sp("learning_rate",    std::to_string(lr_));
-        sp("subsample",        std::to_string(subsample_));
-        sp("colsample_bytree", std::to_string(colsample_));
-        sp("objective",        "binary:logistic");
-        sp("eval_metric",      "logloss");
-        sp("verbosity",        "0");
-        sp("seed",             "42");
+        // Running raw scores  F_i  (before sigmoid)
+        Vector F(n, base_score_);
 
-        for (int i=0;i<n_est_;++i) XGBoosterUpdateOneIter(booster_, i, dtr);
-        XGDMatrixFree(dtr);
+        std::size_t n_col = std::max((std::size_t)1,
+                            (std::size_t)std::round(colsample_ * (double)p));
+
+        std::vector<std::size_t> all_rows(n), all_feats(p);
+        std::iota(all_rows.begin(),  all_rows.end(),  0);
+        std::iota(all_feats.begin(), all_feats.end(), 0);
+
+        for (int t = 0; t < n_est_; ++t) {
+            // ── Compute gradients & hessians ──
+            Vector gv(n), hv(n);
+            for (std::size_t i = 0; i < n; ++i) {
+                double pi = sigmoid(F[i]);
+                gv[i] = pi - (double)y[i];
+                hv[i] = std::max(1e-6, pi * (1.0 - pi));
+            }
+
+            // ── Row subsampling ──
+            std::vector<std::size_t> row_idx = all_rows;
+            if (subsample_ < 1.0) {
+                std::shuffle(row_idx.begin(), row_idx.end(), rng);
+                row_idx.resize((std::size_t)(subsample_ * (double)n));
+            }
+
+            // ── Column subsampling (per tree) ──
+            std::vector<std::size_t> col_idx = all_feats;
+            if (n_col < p) {
+                std::shuffle(col_idx.begin(), col_idx.end(), rng);
+                col_idx.resize(n_col);
+                std::sort(col_idx.begin(), col_idx.end());
+            }
+
+            // ── Build tree ──
+            XGBTree tree;
+            tree.feat_idx_ = col_idx;
+            build_node(tree, X, gv, hv, row_idx, 0);
+            trees_.push_back(tree);
+
+            // ── Update F for all rows (not just sampled rows) ──
+            for (std::size_t i = 0; i < n; ++i)
+                F[i] += lr_ * tree.predict_one(X[i]);
+        }
     }
 
     Vector predict_proba(const Matrix& X) const override {
-        std::size_t n = X.size(), p = X[0].size();
-        auto data = to_float(X);
-        DMatrixHandle dte;
-        XGDMatrixCreateFromMat(data.data(),(bst_ulong)n,(bst_ulong)p,
-                               std::numeric_limits<float>::quiet_NaN(), &dte);
-        bst_ulong olen; const float* ores;
-        XGBoosterPredict(booster_, dte, 0, 0, 0, &olen, &ores);
-        Vector pr(olen);
-        for (bst_ulong i=0;i<olen;++i) pr[i] = ores[i];
-        XGDMatrixFree(dte);
+        Vector pr(X.size());
+        for (std::size_t i = 0; i < X.size(); ++i) {
+            double score = base_score_;
+            for (const auto& tree : trees_)
+                score += lr_ * tree.predict_one(X[i]);
+            pr[i] = sigmoid(score);
+        }
         return pr;
     }
 
     IVector predict(const Matrix& X) const override {
         auto pr = predict_proba(X);
         IVector out(pr.size());
-        for (std::size_t i=0;i<pr.size();++i) out[i] = pr[i]>=0.5?1:0;
+        for (std::size_t i = 0; i < pr.size(); ++i)
+            out[i] = pr[i] >= 0.5 ? 1 : 0;
         return out;
     }
 
@@ -1017,6 +1141,19 @@ static Objective make_objective(const std::string& mname,
     };
 }
 
+// Helper: print an HPConfig to stdout (avoids structured-binding lambda capture)
+static void print_cfg(const HPConfig& cfg) {
+    for (auto it = cfg.begin(); it != cfg.end(); ++it) {
+        const std::string& key = it->first;
+        const HPValue&     val = it->second;
+        std::cout << key << "=";
+        if      (std::holds_alternative<int>        (val)) std::cout << std::get<int>        (val);
+        else if (std::holds_alternative<double>     (val)) std::cout << std::get<double>     (val);
+        else if (std::holds_alternative<std::string>(val)) std::cout << std::get<std::string>(val);
+        std::cout << " ";
+    }
+}
+
 // ── 9.1  Grid Search ─────────────────────────────────────────────────────────
 class GridSearchCV {
 public:
@@ -1038,8 +1175,7 @@ public:
             for (std::size_t i=0;i<keys.size();++i) cfg[keys[i]] = grid_[keys[i]][idx[i]];
 
             std::cout << "  [GS " << model_name << " #" << ++trial << "] ";
-            for (auto& [k,v]:cfg)
-                std::visit([&](auto&& x){ std::cout<<k<<"="<<x<<" "; }, v);
+            print_cfg(cfg);
             double s = obj(cfg);
             std::cout << "→ F1=" << std::fixed << std::setprecision(4) << s << "\n";
 
@@ -1077,8 +1213,7 @@ public:
                 cfg[k] = vals[d(rng)];
             }
             std::cout << "  [RS " << model_name << " #" << t+1 << "] ";
-            for (auto& [k,v]:cfg)
-                std::visit([&](auto&& x){ std::cout<<k<<"="<<x<<" "; }, v);
+            print_cfg(cfg);
             double s = obj(cfg);
             std::cout << "→ F1=" << std::fixed << std::setprecision(4) << s << "\n";
             if (s > best_score_) { best_score_=s; best_params_=cfg; }
@@ -1216,7 +1351,6 @@ public:
         double sig = std::sqrt(sig2);
         if (sig<1e-10) return 0.0;
         double z = (mu-fbest)/sig;
-        static constexpr double INV_SQRT2 = 0.7071067811865476;
         auto Phi  = [](double x){ return 0.5*std::erfc(-x*0.7071067811865476); };
         auto phi  = [](double x){ return std::exp(-0.5*x*x)/2.506628274631001; };
         return (mu-fbest)*Phi(z) + sig*phi(z);
@@ -1229,8 +1363,7 @@ public:
         auto eval_cfg = [&](const HPConfig& cfg, const std::string& tag, int t) {
             std::cout << "  [BO " << model_name << " " << tag
                       << " #" << t << "] ";
-            for (auto& [k,v]:cfg)
-                std::visit([&](auto&& x){ std::cout<<k<<"="<<x<<" "; }, v);
+            print_cfg(cfg);
             double s = obj(cfg);
             std::cout << "→ F1=" << std::fixed << std::setprecision(4) << s << "\n";
             X_obs_.push_back(normalise(cfg));
@@ -1531,7 +1664,6 @@ int main(int argc, char** argv) {
     auto make_bo_specs = [](const std::string& mn)
         -> std::vector<BayesianOptimisation::ParamSpec>
     {
-        using PS = BayesianOptimisation::ParamSpec;
         if (mn=="LogisticRegression")
             return {{"C","real",0.001,100.0,true,{}}};
         if (mn=="DecisionTree")
