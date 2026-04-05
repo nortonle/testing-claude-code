@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/nortonle/**)",
+      "Bash(python3)",
+      "Bash(python3 -c ':*)",
+      "Bash(python3 -c \"import docx; print\\('python-docx OK'\\)\")",
+      "Bash(pip install:*)",
+      "Bash(python3 -c \"import docx; print\\('python-docx installed OK'\\)\")",
+      "Bash(pip3 install:*)",
+      "Bash(python3 -c \"import docx; print\\('OK'\\)\")",
+      "Bash(pip3 show:*)",
+      "Bash(python3 -c \"from docx import Document; print\\('OK'\\)\")",
+      "Bash(python3.13 -c \"from docx import Document; print\\('python-docx on 3.13 OK'\\)\")",
+      "Bash(python3.13 -c ':*)",
+      "Bash(python3.13 generate_dissertation.py)"
+    ]
+  }
+}
