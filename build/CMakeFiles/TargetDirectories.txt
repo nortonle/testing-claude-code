@@ -1,0 +1,3 @@
+/Users/nortonle/Library/CloudStorage/OneDrive-Personal/Documents/Master studies/Master thesis/testing claude code/build/CMakeFiles/churn_prediction.dir
+/Users/nortonle/Library/CloudStorage/OneDrive-Personal/Documents/Master studies/Master thesis/testing claude code/build/CMakeFiles/edit_cache.dir
+/Users/nortonle/Library/CloudStorage/OneDrive-Personal/Documents/Master studies/Master thesis/testing claude code/build/CMakeFiles/rebuild_cache.dir
