@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>churn_prediction.cpp — Class Diagrams</title>
+<style>
+/* ── Reset & base ─────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:        #0f1117;
+  --surface:   #1a1d27;
+  --surface2:  #22263a;
+  --border:    #2e3250;
+  --text:      #dde1f0;
+  --muted:     #7880a0;
+  --accent:    #5b8dee;
+
+  --c-struct:  #e8a44a;
+  --c-abstract:#d45f7e;
+  --c-model:   #48c78e;
+  --c-pre:     #f7a;
+  --c-hpo:     #a78bfa;
+  --c-alias:   #60c0ff;
+
+  --field-priv: #ff7b7b;
+  --field-pub:  #7fdf9b;
+  --field-prot: #ffd580;
+  --ret-color:  #82cfff;
+  --arg-color:  #c8b9f5;
+  --kw-color:   #f97583;
+  --type-color: #79b8ff;
+}
+body {
+  background: var(--bg); color: var(--text);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 14px; min-height: 100vh;
+}
+
+/* ── Top bar ──────────────────────────────────────────────────────────── */
+header {
+  position: sticky; top: 0; z-index: 100;
+  background: #12151f;
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+}
+header h1 { font-size: 16px; color: var(--accent); white-space: nowrap; }
+header h1 span { color: var(--muted); font-weight: 400; font-size: 13px; }
+
+.tab-bar { display: flex; gap: 4px; }
+.tab {
+  padding: 6px 16px; border-radius: 6px; cursor: pointer;
+  font-size: 13px; border: 1px solid var(--border);
+  background: transparent; color: var(--muted);
+  transition: all .15s;
+}
+.tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.tab:hover:not(.active) { background: var(--surface2); color: var(--text); }
+
+.ctrl-group { display: flex; gap: 6px; margin-left: auto; }
+button.ctrl {
+  padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); transition: background .15s;
+}
+button.ctrl:hover { background: var(--border); }
+
+input#search {
+  padding: 5px 10px; border-radius: 6px; font-size: 13px;
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); width: 180px;
+}
+input#search::placeholder { color: var(--muted); }
+
+/* ── Legend ───────────────────────────────────────────────────────────── */
+.legend {
+  display: flex; flex-wrap: wrap; gap: 12px;
+  padding: 10px 24px; border-bottom: 1px solid var(--border);
+  background: #12151f;
+}
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+.legend-dot {
+  width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0;
+}
+
+/* ── Views ────────────────────────────────────────────────────────────── */
+#view-diagram, #view-cards { display: none; }
+#view-diagram.active, #view-cards.active { display: block; }
+
+/* ── SVG Diagram ──────────────────────────────────────────────────────── */
+#diagram-wrap {
+  overflow: auto; padding: 24px;
+  min-height: calc(100vh - 120px);
+}
+#class-svg { display: block; }
+
+/* ── Cards view ───────────────────────────────────────────────────────── */
+#cards-wrap {
+  padding: 20px 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 16px;
+}
+
+/* ── Class card ───────────────────────────────────────────────────────── */
+.card {
+  border-radius: 10px; overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  transition: box-shadow .2s;
+}
+.card:hover { box-shadow: 0 4px 24px rgba(0,0,0,.5); }
+.card.hidden { display: none; }
+
+.card-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px; cursor: pointer;
+  user-select: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color .15s;
+}
+.card.open .card-header { border-color: var(--border); }
+.card-header:hover { filter: brightness(1.1); }
+
+.card-stripe { width: 4px; height: 40px; border-radius: 3px; flex-shrink: 0; }
+.card-title { flex: 1; }
+.card-stereotype {
+  font-size: 10px; color: var(--muted);
+  font-style: italic; letter-spacing: .5px;
+}
+.card-name { font-size: 15px; font-weight: 700; font-family: 'Courier New', monospace; }
+.card-inherits { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.card-inherits span { color: var(--accent); }
+
+.card-badge {
+  font-size: 10px; padding: 2px 7px; border-radius: 20px;
+  font-weight: 600; letter-spacing: .5px;
+}
+
+.toggle-icon { font-size: 16px; color: var(--muted); transition: transform .2s; }
+.card.open .toggle-icon { transform: rotate(90deg); }
+
+.card-body { display: none; }
+.card.open .card-body { display: block; }
+
+/* ── Section within card ─────────────────────────────────────────────── */
+.section-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 14px; cursor: pointer;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  font-size: 12px; font-weight: 600; letter-spacing: .6px;
+  text-transform: uppercase; color: var(--muted);
+  user-select: none;
+}
+.section-header:hover { color: var(--text); }
+.section-toggle { font-size: 11px; margin-left: auto; }
+.section-content { display: none; }
+.section.open .section-content { display: block; }
+
+/* ── Member rows ─────────────────────────────────────────────────────── */
+.member {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 6px 14px; border-bottom: 1px solid #1e2235;
+  font-family: 'Courier New', monospace; font-size: 12.5px;
+  line-height: 1.5;
+}
+.member:last-child { border-bottom: none; }
+.member:hover { background: var(--surface2); }
+.access {
+  font-weight: 700; font-size: 14px; width: 14px;
+  flex-shrink: 0; text-align: center; line-height: 1.4;
+}
+.access.pub  { color: var(--field-pub); }
+.access.priv { color: var(--field-priv); }
+.access.prot { color: var(--field-prot); }
+.access.stat { color: #82cfff; }
+
+.member-sig { flex: 1; min-width: 0; word-break: break-word; }
+.kw  { color: var(--kw-color); }
+.tp  { color: var(--type-color); }
+.ret { color: var(--ret-color); }
+.arg { color: var(--arg-color); }
+.nm  { color: #e8e8e8; font-weight: 600; }
+.val { color: #f0c070; }
+.cmt { color: var(--muted); font-style: italic; }
+
+/* ── Alias section ───────────────────────────────────────────────────── */
+#alias-section {
+  padding: 16px 24px;
+  display: flex; flex-wrap: wrap; gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.alias-chip {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 6px; padding: 5px 12px;
+  font-family: 'Courier New', monospace; font-size: 12px;
+}
+.alias-chip .nm { color: var(--c-alias); }
+.alias-chip .tp { color: var(--muted); }
+
+/* ── SVG diagram styles ──────────────────────────────────────────────── */
+.svg-card-head { cursor: pointer; }
+.svg-card-head:hover rect { filter: brightness(1.2); }
+
+/* ── Scrollbar ───────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* ── Tooltip ─────────────────────────────────────────────────────────── */
+#tooltip {
+  position: fixed; background: #222640; border: 1px solid var(--accent);
+  padding: 8px 12px; border-radius: 8px; font-size: 12px;
+  pointer-events: none; opacity: 0; transition: opacity .15s;
+  max-width: 320px; z-index: 200;
+  font-family: 'Courier New', monospace;
+  line-height: 1.6;
+}
+</style>
+</head>
+<body>
+
+<!-- ── Top bar ─────────────────────────────────────────────────────────── -->
+<header>
+  <h1>churn_prediction.cpp <span>— Class Diagrams</span></h1>
+  <div class="tab-bar">
+    <button class="tab active" onclick="switchView('diagram',this)">Inheritance Diagram</button>
+    <button class="tab"        onclick="switchView('cards',this)">All Classes Detail</button>
+  </div>
+  <div class="ctrl-group">
+    <input id="search" type="text" placeholder="Search classes…" oninput="filterCards(this.value)"/>
+    <button class="ctrl" onclick="expandAll()">Expand All</button>
+    <button class="ctrl" onclick="collapseAll()">Collapse All</button>
+  </div>
+</header>
+
+<!-- ── Legend ──────────────────────────────────────────────────────────── -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#d45f7e"></div>Abstract / Interface</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#48c78e"></div>ML Models</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#e8a44a"></div>Data Structures</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#f7a0a0"></div>Preprocessing</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#a78bfa"></div>Hyperparameter Optimisation</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#60c0ff"></div>Type Aliases / Globals</div>
+  <div class="legend-item" style="margin-left:auto">
+    <span style="color:#7fdf9b;font-weight:700">+</span> public &nbsp;
+    <span style="color:#ff7b7b;font-weight:700">−</span> private &nbsp;
+    <span style="color:#ffd580;font-weight:700">#</span> protected &nbsp;
+    <span style="color:#82cfff;font-weight:700">§</span> static
+  </div>
+</div>
+
+<!-- ── Tooltip ─────────────────────────────────────────────────────────── -->
+<div id="tooltip"></div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- VIEW 1 — INHERITANCE SVG DIAGRAM                                      -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div id="view-diagram" class="active">
+  <div id="diagram-wrap">
+    <svg id="class-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- VIEW 2 — EXPANDABLE CARDS                                             -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div id="view-cards">
+  <!-- Type Aliases -->
+  <div id="alias-section">
+    <div class="alias-chip"><span class="nm">Matrix</span> <span class="tp">= vector&lt;vector&lt;double&gt;&gt;</span></div>
+    <div class="alias-chip"><span class="nm">Vector</span> <span class="tp">= vector&lt;double&gt;</span></div>
+    <div class="alias-chip"><span class="nm">IVector</span> <span class="tp">= vector&lt;int&gt;</span></div>
+    <div class="alias-chip"><span class="nm">StrVec</span> <span class="tp">= vector&lt;string&gt;</span></div>
+    <div class="alias-chip"><span class="nm">HPValue</span> <span class="tp">= variant&lt;int, double, string&gt;</span></div>
+    <div class="alias-chip"><span class="nm">HPConfig</span> <span class="tp">= map&lt;string, HPValue&gt;</span></div>
+    <div class="alias-chip"><span class="nm">Objective</span> <span class="tp">= function&lt;double(const HPConfig&)&gt;</span></div>
+  </div>
+  <div id="cards-wrap"></div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════════════
+// DATA MODEL
+// ════════════════════════════════════════════════════════════════════════
+const CLASSES = [
+
+// ── Structs / Data ──────────────────────────────────────────────────────
+{
+  name:'DataFrame', kind:'struct', cat:'data',
+  desc:'In-memory tabular store for CSV data (numeric + string columns)',
+  fields:[
+    {acc:'pub', type:'StrVec',                         name:'columns',  note:'ordered column names'},
+    {acc:'pub', type:'unordered_map&lt;string,Vector&gt;', name:'num',      note:'numeric columns keyed by name'},
+    {acc:'pub', type:'unordered_map&lt;string,StrVec&gt;', name:'str',      note:'string/categorical columns'},
+    {acc:'pub', type:'size_t',                         name:'n_rows',   note:'total row count', def:'0'},
+  ],
+  methods:[
+    {acc:'pub', ret:'bool',          name:'has',      args:'const string& c',       qual:'const', note:'returns true if column exists'},
+    {acc:'pub', ret:'const Vector&', name:'get_num',  args:'const string& c',       qual:'const', note:'numeric column accessor'},
+    {acc:'pub', ret:'const StrVec&', name:'get_str',  args:'const string& c',       qual:'const', note:'string column accessor'},
+  ]
+},
+
+{
+  name:'Node', kind:'struct', cat:'data',
+  desc:'One node in a CART Decision Tree (internal or leaf)',
+  fields:[
+    {acc:'pub', type:'int',    name:'feat',    note:'split feature index', def:'-1'},
+    {acc:'pub', type:'double', name:'thresh',  note:'split threshold',     def:'0.0'},
+    {acc:'pub', type:'int',    name:'left',    note:'left child index',    def:'-1'},
+    {acc:'pub', type:'int',    name:'right',   note:'right child index',   def:'-1'},
+    {acc:'pub', type:'double', name:'leaf_p',  note:'class-1 probability at leaf', def:'0.0'},
+    {acc:'pub', type:'bool',   name:'is_leaf', note:'leaf flag',           def:'false'},
+  ],
+  methods:[]
+},
+
+{
+  name:'XGBNode', kind:'struct', cat:'data',
+  desc:'One node in an XGBoost regression tree',
+  fields:[
+    {acc:'pub', type:'int',    name:'feat',    note:'split feature index',   def:'-1'},
+    {acc:'pub', type:'double', name:'thresh',  note:'split threshold',       def:'0.0'},
+    {acc:'pub', type:'int',    name:'left',    note:'left child index',      def:'-1'},
+    {acc:'pub', type:'int',    name:'right',   note:'right child index',     def:'-1'},
+    {acc:'pub', type:'double', name:'weight',  note:'leaf weight w* = -G/(H+λ)', def:'0.0'},
+    {acc:'pub', type:'bool',   name:'is_leaf', note:'leaf flag',             def:'false'},
+  ],
+  methods:[]
+},
+
+{
+  name:'ExtractedData', kind:'struct', cat:'data',
+  desc:'Container for feature matrices extracted from DataFrame',
+  fields:[
+    {acc:'pub', type:'Matrix',           name:'X_num', note:'numeric feature matrix'},
+    {acc:'pub', type:'vector&lt;StrVec&gt;', name:'X_cat', note:'categorical columns (one StrVec per column)'},
+    {acc:'pub', type:'IVector',          name:'y',     note:'integer labels (0/1)'},
+  ],
+  methods:[]
+},
+
+{
+  name:'DataSplit', kind:'struct', cat:'data',
+  desc:'Train/test partition of ExtractedData',
+  fields:[
+    {acc:'pub', type:'Matrix',           name:'X_num_tr', note:'train numeric features'},
+    {acc:'pub', type:'Matrix',           name:'X_num_te', note:'test  numeric features'},
+    {acc:'pub', type:'vector&lt;StrVec&gt;', name:'X_cat_tr', note:'train categorical columns'},
+    {acc:'pub', type:'vector&lt;StrVec&gt;', name:'X_cat_te', note:'test  categorical columns'},
+    {acc:'pub', type:'IVector',          name:'y_tr',     note:'train labels'},
+    {acc:'pub', type:'IVector',          name:'y_te',     note:'test  labels'},
+  ],
+  methods:[]
+},
+
+{
+  name:'Metrics', kind:'struct', cat:'data',
+  desc:'Evaluation metrics bundle for one model evaluation',
+  fields:[
+    {acc:'pub', type:'double', name:'accuracy',  def:'0', note:'(TP+TN)/N'},
+    {acc:'pub', type:'double', name:'precision', def:'0', note:'TP/(TP+FP)'},
+    {acc:'pub', type:'double', name:'recall',    def:'0', note:'TP/(TP+FN)'},
+    {acc:'pub', type:'double', name:'f1',        def:'0', note:'harmonic mean of prec & recall'},
+    {acc:'pub', type:'double', name:'auc_roc',   def:'0', note:'area under ROC curve'},
+    {acc:'pub', type:'double', name:'train_us',  def:'0', note:'µs per training sample'},
+    {acc:'pub', type:'double', name:'pred_us',   def:'0', note:'µs per prediction sample'},
+  ],
+  methods:[
+    {acc:'pub', ret:'void', name:'print', args:'const string& lbl = ""', qual:'const', note:'pretty-print metrics to stdout'},
+  ]
+},
+
+{
+  name:'EvalResult', kind:'struct', cat:'data',
+  desc:'One row in the final results table',
+  fields:[
+    {acc:'pub', type:'string',  name:'model_name', note:'e.g. "RandomForest"'},
+    {acc:'pub', type:'string',  name:'phase',      note:'e.g. "Phase1-Baseline"'},
+    {acc:'pub', type:'Metrics', name:'test_m',     note:'held-out test metrics'},
+    {acc:'pub', type:'double',  name:'cv_f1_mean', def:'0', note:'mean 5-fold CV F1'},
+  ],
+  methods:[]
+},
+
+// ── Preprocessing ────────────────────────────────────────────────────────
+{
+  name:'StandardScaler', kind:'class', cat:'pre',
+  desc:'Z-score normalisation: μ fitted on training fold, applied to train & test',
+  fields:[
+    {acc:'pub', type:'Vector', name:'mean_', note:'per-feature means'},
+    {acc:'pub', type:'Vector', name:'std_',  note:'per-feature std deviations'},
+  ],
+  methods:[
+    {acc:'pub', ret:'Matrix', name:'fit_transform', args:'const Matrix& X',       note:'fit on X then transform X'},
+    {acc:'pub', ret:'Matrix', name:'transform',     args:'const Matrix& X', qual:'const', note:'apply stored μ,σ to X'},
+  ]
+},
+
+{
+  name:'OneHotEncoder', kind:'class', cat:'pre',
+  desc:'One-hot encoding with drop-first (mirrors sklearn OHE)',
+  fields:[
+    {acc:'pub', type:'vector&lt;StrVec&gt;', name:'categories_', note:'sorted category lists (first dropped)'},
+  ],
+  methods:[
+    {acc:'pub', ret:'void',   name:'fit',       args:'const vector&lt;StrVec&gt;& cat',       note:'learn category sets from training data'},
+    {acc:'pub', ret:'Matrix', name:'transform', args:'const vector&lt;StrVec&gt;& cat', qual:'const', note:'encode categorical columns as 0/1 matrix'},
+  ]
+},
+
+{
+  name:'SMOTE', kind:'class', cat:'pre',
+  desc:'Synthetic Minority Over-sampling Technique (kNN-based) — applied inside each CV fold',
+  fields:[
+    {acc:'priv', type:'int',      name:'k_',    note:'number of neighbours', def:'5'},
+    {acc:'priv', type:'unsigned', name:'seed_', note:'RNG seed',             def:'42'},
+  ],
+  methods:[
+    {acc:'pub', ret:'', name:'SMOTE', args:'int k = 5, unsigned seed = 42', isctor:true, note:'constructor'},
+    {acc:'pub', ret:'pair&lt;Matrix, IVector&gt;', name:'fit_resample',
+     args:'const Matrix& X, const IVector& y', note:'oversample minority class to match majority count'},
+  ]
+},
+
+// ── Abstract base ────────────────────────────────────────────────────────
+{
+  name:'Classifier', kind:'class', cat:'abstract', abstract:true,
+  stereotype:'&lt;&lt;abstract&gt;&gt;',
+  desc:'Pure-virtual base class for all binary classifiers',
+  fields:[],
+  methods:[
+    {acc:'pub', ret:'void',   name:'~Classifier', args:'',                  qual:'virtual',          note:'virtual destructor', isctor:true},
+    {acc:'pub', ret:'void',   name:'fit',         args:'const Matrix& X, const IVector& y', qual:'pure virtual', note:'train model on X,y'},
+    {acc:'pub', ret:'IVector',name:'predict',     args:'const Matrix& X',   qual:'pure virtual const',note:'predict class labels'},
+    {acc:'pub', ret:'Vector', name:'predict_proba',args:'const Matrix& X',  qual:'pure virtual const',note:'predict class-1 probabilities'},
+    {acc:'pub', ret:'string', name:'name',        args:'',                  qual:'pure virtual const',note:'return model name string'},
+  ]
+},
+
+// ── ML Models ────────────────────────────────────────────────────────────
+{
+  name:'LogisticRegression', kind:'class', cat:'model',
+  inherits:'Classifier',
+  desc:'L2-regularised logistic regression trained by mini-batch gradient descent',
+  fields:[
+    {acc:'priv', type:'double', name:'C_',        note:'inverse regularisation strength', def:'1.0'},
+    {acc:'priv', type:'int',    name:'max_iter_', note:'gradient descent iterations',     def:'1000'},
+    {acc:'priv', type:'double', name:'lr_',       note:'learning rate',                   def:'0.1'},
+    {acc:'priv', type:'Vector', name:'w_',        note:'weight vector (fitted)'},
+    {acc:'priv', type:'double', name:'b_',        note:'bias term',                       def:'0.0'},
+  ],
+  methods:[
+    {acc:'priv', ret:'double', name:'sigmoid',        args:'double x',                 qual:'static', note:'σ(x) = 1/(1+e^-x)'},
+    {acc:'pub',  ret:'',       name:'LogisticRegression', args:'double C=1.0, int max_iter=1000, double lr=0.1', isctor:true},
+    {acc:'pub',  ret:'void',   name:'fit',           args:'const Matrix& X, const IVector& y', qual:'override'},
+    {acc:'pub',  ret:'Vector', name:'predict_proba', args:'const Matrix& X',           qual:'override const'},
+    {acc:'pub',  ret:'IVector',name:'predict',       args:'const Matrix& X',           qual:'override const'},
+    {acc:'pub',  ret:'string', name:'name',          args:'',                          qual:'override const'},
+  ]
+},
+
+{
+  name:'DecisionTree', kind:'class', cat:'model',
+  inherits:'Classifier',
+  desc:'CART decision tree with Gini/Entropy split criterion and depth control',
+  inner:[
+    {kind:'struct', name:'Split',
+     fields:['int feat=-1','double thresh=0','double gain=-1e18','vector&lt;size_t&gt; li','vector&lt;size_t&gt; ri']},
+  ],
+  fields:[
+    {acc:'priv', type:'int',          name:'max_depth_', note:'max tree depth (-1 = unlimited)'},
+    {acc:'priv', type:'int',          name:'min_split_', note:'min samples required to split'},
+    {acc:'priv', type:'int',          name:'min_leaf_',  note:'min samples per leaf'},
+    {acc:'priv', type:'bool',         name:'use_entropy_',note:'true = entropy criterion, false = gini'},
+    {acc:'priv', type:'vector&lt;Node&gt;', name:'nodes_',     note:'flat node array (DFS order)'},
+  ],
+  methods:[
+    {acc:'priv', ret:'double', name:'impurity',   args:'const IVector& y',                                           qual:'const'},
+    {acc:'priv', ret:'Split',  name:'best_split', args:'const Matrix& X, const IVector& y, const vector&lt;size_t&gt;& idx', qual:'const'},
+    {acc:'priv', ret:'int',    name:'build',      args:'const Matrix& X, const IVector& y, const vector&lt;size_t&gt;& idx, int depth'},
+    {acc:'priv', ret:'double', name:'pred_one',   args:'const Vector& x, int ni',                                    qual:'const'},
+    {acc:'pub',  ret:'',       name:'DecisionTree',args:'int max_depth=-1, int min_split=2, int min_leaf=1, const string& crit="gini"', isctor:true},
+    {acc:'pub',  ret:'void',   name:'fit',          args:'const Matrix& X, const IVector& y', qual:'override'},
+    {acc:'pub',  ret:'Vector', name:'predict_proba', args:'const Matrix& X',                  qual:'override const'},
+    {acc:'pub',  ret:'IVector',name:'predict',       args:'const Matrix& X',                  qual:'override const'},
+    {acc:'pub',  ret:'string', name:'name',          args:'',                                 qual:'override const'},
+  ]
+},
+
+{
+  name:'RandomForest', kind:'class', cat:'model',
+  inherits:'Classifier',
+  desc:'Ensemble of DecisionTrees with bootstrap sampling and feature subsampling',
+  inner:[
+    {kind:'struct', name:'TreeBundle',
+     fields:['DecisionTree tree','vector&lt;size_t&gt; feat_idx']},
+  ],
+  fields:[
+    {acc:'priv', type:'int',                   name:'n_est_',    note:'number of trees'},
+    {acc:'priv', type:'int',                   name:'max_depth_',note:'max depth per tree'},
+    {acc:'priv', type:'int',                   name:'min_split_',note:'min samples to split'},
+    {acc:'priv', type:'string',                name:'max_feat_', note:'"sqrt" or "log2"'},
+    {acc:'priv', type:'unsigned',              name:'seed_',     note:'RNG seed'},
+    {acc:'priv', type:'vector&lt;TreeBundle&gt;', name:'forest_',   note:'array of tree+feature-subset bundles'},
+  ],
+  methods:[
+    {acc:'priv', ret:'size_t', name:'n_feat',       args:'size_t p',                                         qual:'const', note:'compute feature subset size'},
+    {acc:'pub',  ret:'',       name:'RandomForest', args:'int n_est=100, int max_depth=-1, int min_split=2, string max_feat="sqrt", unsigned seed=42', isctor:true},
+    {acc:'pub',  ret:'void',   name:'fit',           args:'const Matrix& X, const IVector& y', qual:'override'},
+    {acc:'pub',  ret:'Vector', name:'predict_proba', args:'const Matrix& X',                   qual:'override const'},
+    {acc:'pub',  ret:'IVector',name:'predict',       args:'const Matrix& X',                   qual:'override const'},
+    {acc:'pub',  ret:'string', name:'name',          args:'',                                  qual:'override const'},
+  ]
+},
+
+{
+  name:'XGBTree', kind:'class', cat:'model',
+  desc:'Single regression tree used internally by XGBoostClassifier',
+  fields:[
+    {acc:'pub', type:'vector&lt;XGBNode&gt;', name:'nodes_',    note:'flat node array'},
+    {acc:'pub', type:'vector&lt;size_t&gt;',  name:'feat_idx_', note:'column subset for this tree'},
+  ],
+  methods:[
+    {acc:'pub', ret:'double', name:'predict_one', args:'const Vector& x', qual:'const', note:'traverse tree and return leaf weight'},
+  ]
+},
+
+{
+  name:'XGBoostClassifier', kind:'class', cat:'model',
+  inherits:'Classifier',
+  desc:'Gradient Boosted Trees — from scratch, mirrors Chen & Guestrin 2016. Binary log-loss, exact greedy split, L2+γ regularisation.',
+  fields:[
+    {acc:'priv', type:'int',                name:'n_est_',     note:'number of boosting rounds'},
+    {acc:'priv', type:'int',                name:'max_depth_', note:'max tree depth'},
+    {acc:'priv', type:'double',             name:'lr_',        note:'learning rate η (shrinkage)'},
+    {acc:'priv', type:'double',             name:'subsample_', note:'row subsampling fraction'},
+    {acc:'priv', type:'double',             name:'colsample_', note:'column subsampling fraction'},
+    {acc:'priv', type:'double',             name:'lambda_',    note:'L2 regularisation on leaf weights'},
+    {acc:'priv', type:'double',             name:'gamma_',     note:'minimum gain to accept a split'},
+    {acc:'priv', type:'unsigned',           name:'seed_',      note:'RNG seed'},
+    {acc:'priv', type:'vector&lt;XGBTree&gt;', name:'trees_',     note:'ensemble of fitted trees'},
+    {acc:'priv', type:'double',             name:'base_score_',note:'log-odds base prediction', def:'0.0'},
+  ],
+  methods:[
+    {acc:'priv', ret:'double', name:'sigmoid',    args:'double x', qual:'static', note:'clamp to [-35,35] then 1/(1+e^-x)'},
+    {acc:'priv', ret:'int',    name:'build_node', args:'XGBTree& tree, const Matrix& X, const Vector& g, const Vector& h, const vector&lt;size_t&gt;& idx, int depth',
+     note:'recursive node builder; returns node index'},
+    {acc:'pub', ret:'',        name:'XGBoostClassifier',
+     args:'int n_est=100, int max_depth=5, double lr=0.1, double sub=1.0, double col=1.0, double lambda=1.0, double gamma=0.0, unsigned seed=42', isctor:true},
+    {acc:'pub', ret:'void',    name:'fit',           args:'const Matrix& X, const IVector& y', qual:'override'},
+    {acc:'pub', ret:'Vector',  name:'predict_proba', args:'const Matrix& X',                   qual:'override const'},
+    {acc:'pub', ret:'IVector', name:'predict',       args:'const Matrix& X',                   qual:'override const'},
+    {acc:'pub', ret:'string',  name:'name',          args:'',                                  qual:'override const'},
+  ]
+},
+
+// ── HPO ──────────────────────────────────────────────────────────────────
+{
+  name:'GridSearchCV', kind:'class', cat:'hpo',
+  desc:'Exhaustive grid search — evaluates every combination of the supplied parameter grid',
+  fields:[
+    {acc:'pub', type:'map&lt;string,vector&lt;HPValue&gt;&gt;', name:'grid_',        note:'parameter grid (name → candidate values)'},
+    {acc:'pub', type:'HPConfig',                                name:'best_params_', note:'best hyperparameter configuration found'},
+    {acc:'pub', type:'double',                                  name:'best_score_',  note:'best CV F1 score', def:'-1e18'},
+  ],
+  methods:[
+    {acc:'pub', ret:'',    name:'GridSearchCV', args:'map&lt;string,vector&lt;HPValue&gt;&gt; g', isctor:true},
+    {acc:'pub', ret:'void',name:'run',          args:'Objective obj, const string& model_name', note:'enumerate all configs and call obj(cfg) for each'},
+  ]
+},
+
+{
+  name:'RandomSearchCV', kind:'class', cat:'hpo',
+  desc:'Stochastic random search over discrete distributions (50 trials by default)',
+  fields:[
+    {acc:'pub', type:'map&lt;string,vector&lt;HPValue&gt;&gt;', name:'dists_',       note:'candidate value lists per parameter'},
+    {acc:'pub', type:'int',                                     name:'n_iter_',      note:'number of random trials'},
+    {acc:'pub', type:'unsigned',                                name:'seed_',        note:'RNG seed'},
+    {acc:'pub', type:'HPConfig',                                name:'best_params_', note:'best configuration found'},
+    {acc:'pub', type:'double',                                  name:'best_score_',  note:'best CV F1',  def:'-1e18'},
+  ],
+  methods:[
+    {acc:'pub', ret:'',    name:'RandomSearchCV', args:'map&lt;string,vector&lt;HPValue&gt;&gt; d, int n=50, unsigned seed=42', isctor:true},
+    {acc:'pub', ret:'void',name:'run',            args:'Objective obj, const string& model_name', note:'sample n_iter_ random configs and evaluate'},
+  ]
+},
+
+{
+  name:'BayesianOptimisation', kind:'class', cat:'hpo',
+  desc:'Gaussian Process + Expected Improvement acquisition. 10 random init + 40 GP-guided trials.',
+  inner:[
+    {kind:'struct', name:'ParamSpec',
+     fields:['string name','string type  // "real"|"int"|"cat"','double lo','double hi',
+             'bool log_scale','vector&lt;HPValue&gt; cats']},
+  ],
+  fields:[
+    {acc:'pub', type:'vector&lt;ParamSpec&gt;', name:'specs_',       note:'search space definition'},
+    {acc:'pub', type:'int',                    name:'n_iter_',      note:'total iterations'},
+    {acc:'pub', type:'int',                    name:'n_init_',      note:'random initialisation trials'},
+    {acc:'pub', type:'unsigned',               name:'seed_',        note:'RNG seed'},
+    {acc:'pub', type:'HPConfig',               name:'best_params_', note:'best configuration found'},
+    {acc:'pub', type:'double',                 name:'best_score_',  note:'best CV F1', def:'-1e18'},
+    {acc:'pub', type:'vector&lt;Vector&gt;',   name:'X_obs_',       note:'normalised observed configurations'},
+    {acc:'pub', type:'Vector',                 name:'y_obs_',       note:'observed objective values'},
+  ],
+  methods:[
+    {acc:'pub', ret:'',                   name:'BayesianOptimisation',args:'vector&lt;ParamSpec&gt; specs, int n_iter=50, int n_init=10, unsigned seed=42', isctor:true},
+    {acc:'pub', ret:'Vector',             name:'normalise',     args:'const HPConfig& cfg',         qual:'const', note:'map config to [0,1]^d'},
+    {acc:'pub', ret:'HPConfig',           name:'sample',        args:'mt19937& rng',                qual:'const', note:'draw random config from search space'},
+    {acc:'pub', ret:'double',             name:'kernel',        args:'const Vector& a, const Vector& b, double l=0.5', qual:'const', note:'RBF kernel k(a,b)=exp(-||a-b||²/2ℓ²)'},
+    {acc:'pub', ret:'pair&lt;double,double&gt;', name:'gp_posterior', args:'const Vector& xq', qual:'const', note:'GP mean and variance at query point xq'},
+    {acc:'pub', ret:'double',             name:'EI',            args:'const Vector& xq',            qual:'const', note:'Expected Improvement acquisition function'},
+    {acc:'pub', ret:'void',               name:'run',           args:'Objective obj, const string& model_name', note:'10 random init then GP-EI guided search'},
+  ]
+},
+
+]; // end CLASSES
+
+// ════════════════════════════════════════════════════════════════════════
+// CATEGORY CONFIG
+// ════════════════════════════════════════════════════════════════════════
+const CAT = {
+  abstract: { color:'#d45f7e', label:'Abstract',      bg:'#2e1a25' },
+  model:    { color:'#48c78e', label:'ML Model',      bg:'#1a2e25' },
+  data:     { color:'#e8a44a', label:'Data',          bg:'#2e2515' },
+  pre:      { color:'#f7a0a0', label:'Preprocessing', bg:'#2e1a1a' },
+  hpo:      { color:'#a78bfa', label:'HPO',           bg:'#221a2e' },
+};
+
+// ════════════════════════════════════════════════════════════════════════
+// BUILD CARDS
+// ════════════════════════════════════════════════════════════════════════
+function accIcon(acc) {
+  if (acc==='pub')  return '<span class="access pub">+</span>';
+  if (acc==='priv') return '<span class="access priv">−</span>';
+  if (acc==='prot') return '<span class="access prot">#</span>';
+  if (acc==='stat') return '<span class="access stat">§</span>';
+  return '';
+}
+function fmtField(f) {
+  let s = `<span class="tp">${f.type}</span> <span class="nm">${f.name}</span>`;
+  if (f.def !== undefined) s += ` <span class="val">= ${f.def}</span>`;
+  if (f.note) s += ` <span class="cmt">// ${f.note}</span>`;
+  return s;
+}
+function fmtMethod(m) {
+  let s = '';
+  if (m.qual && m.qual.includes('static')) s += '<span class="kw">static </span>';
+  if (m.qual && m.qual.includes('virtual')) s += '<span class="kw">virtual </span>';
+  if (!m.isctor && m.ret) s += `<span class="ret">${m.ret}</span> `;
+  s += `<span class="nm">${m.name}</span>`;
+  s += `(<span class="arg">${m.args}</span>)`;
+  if (m.qual) {
+    const q = m.qual.replace('static','').replace('virtual','').trim();
+    if (q) s += ` <span class="kw">${q}</span>`;
+  }
+  if (m.note) s += ` <span class="cmt">// ${m.note}</span>`;
+  return s;
+}
+
+function buildSection(title, items, renderer) {
+  if (!items || items.length===0) return '';
+  const rows = items.map(it =>
+    `<div class="member">${accIcon(it.acc)}<div class="member-sig">${renderer(it)}</div></div>`
+  ).join('');
+  return `
+  <div class="section open">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span>${title}</span><span class="section-content-count">(${items.length})</span>
+      <span class="section-toggle">▲</span>
+    </div>
+    <div class="section-content">${rows}</div>
+  </div>`;
+}
+
+function buildInner(inners) {
+  if (!inners || !inners.length) return '';
+  let html = '<div class="section open"><div class="section-header" onclick="toggleSection(this)">Inner Structs<span class="section-toggle">▲</span></div><div class="section-content">';
+  for (const inn of inners) {
+    html += `<div class="member" style="flex-direction:column;align-items:flex-start;gap:2px;">
+      <div style="color:#e8a44a;font-weight:700;font-family:'Courier New',monospace;font-size:12px">struct ${inn.name} {</div>
+      ${(inn.fields||[]).map(f=>`<div style="padding-left:16px;font-family:'Courier New',monospace;font-size:12px;color:#c8b9f5">${f}</div>`).join('')}
+      <div style="color:#e8a44a;font-family:'Courier New',monospace;font-size:12px">}</div>
+    </div>`;
+  }
+  html += '</div></div>';
+  return html;
+}
+
+function buildCard(cls) {
+  const cat = CAT[cls.cat] || CAT.data;
+  const openClass = 'open'; // start open
+
+  const badgeStyle = `background:${cat.color}22;color:${cat.color};border:1px solid ${cat.color}55`;
+  const streo = cls.abstract ? '<div class="card-stereotype">&laquo;abstract&raquo;</div>' :
+                cls.kind==='struct' ? '<div class="card-stereotype">&laquo;struct&raquo;</div>' : '';
+  const inherits = cls.inherits ? `<div class="card-inherits">extends <span>${cls.inherits}</span></div>` : '';
+
+  const fields  = cls.fields  || [];
+  const methods = cls.methods || [];
+  const pubFields  = fields.filter(f=>f.acc==='pub');
+  const privFields = fields.filter(f=>f.acc==='priv');
+  const protFields = fields.filter(f=>f.acc==='prot');
+  const pubMethods  = methods.filter(m=>m.acc==='pub');
+  const privMethods = methods.filter(m=>m.acc==='priv');
+
+  const body =
+    buildInner(cls.inner) +
+    buildSection('Private Fields',  privFields,  fmtField) +
+    buildSection('Protected Fields',protFields,  fmtField) +
+    buildSection('Public Fields',   pubFields,   fmtField) +
+    buildSection('Private Methods', privMethods, fmtMethod) +
+    buildSection('Public Methods',  pubMethods,  fmtMethod);
+
+  return `
+  <div class="card ${openClass}" data-name="${cls.name.toLowerCase()}" data-cat="${cls.cat}">
+    <div class="card-header" onclick="toggleCard(this.parentElement)">
+      <div class="card-stripe" style="background:${cat.color}"></div>
+      <div class="card-title">
+        ${streo}
+        <div class="card-name">${cls.name}</div>
+        ${inherits}
+        ${cls.desc ? `<div style="font-size:11px;color:var(--muted);margin-top:2px;font-family:sans-serif;font-weight:400">${cls.desc}</div>` : ''}
+      </div>
+      <span class="card-badge" style="${badgeStyle}">${cat.label}</span>
+      <span class="toggle-icon">▶</span>
+    </div>
+    <div class="card-body">${body}</div>
+  </div>`;
+}
+
+const wrap = document.getElementById('cards-wrap');
+wrap.innerHTML = CLASSES.map(buildCard).join('');
+
+// ════════════════════════════════════════════════════════════════════════
+// INTERACTIONS
+// ════════════════════════════════════════════════════════════════════════
+function toggleCard(card) { card.classList.toggle('open'); }
+function toggleSection(hdr) {
+  const sec = hdr.parentElement;
+  sec.classList.toggle('open');
+  hdr.querySelector('.section-toggle').textContent = sec.classList.contains('open') ? '▲' : '▼';
+}
+function expandAll()   { document.querySelectorAll('.card').forEach(c=>c.classList.add('open')); }
+function collapseAll() { document.querySelectorAll('.card').forEach(c=>c.classList.remove('open')); }
+function filterCards(q) {
+  q = q.toLowerCase().trim();
+  document.querySelectorAll('.card').forEach(c => {
+    const match = !q || c.dataset.name.includes(q) || c.innerHTML.toLowerCase().includes(q);
+    c.classList.toggle('hidden', !match);
+  });
+}
+function switchView(v, btn) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('view-diagram').classList.toggle('active', v==='diagram');
+  document.getElementById('view-cards').classList.toggle('active',   v==='cards');
+  if (v==='diagram') drawSVG();
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// SVG INHERITANCE DIAGRAM
+// ════════════════════════════════════════════════════════════════════════
+function drawSVG() {
+  const svg = document.getElementById('class-svg');
+
+  // ── Layout configuration ─────────────────────────────────────────────
+  const CW  = 240;  // card width
+  const LH  = 22;   // line height
+  const PAD = 14;   // inner padding
+  const GAP_X = 60; // horizontal gap between cards
+  const GAP_Y = 50; // vertical gap between rows
+
+  // Compute card height from member count
+  function cardH(cls) {
+    const n = (cls.fields||[]).length + (cls.methods||[]).length;
+    return 44 + n * LH + 2 * PAD;
+  }
+
+  // ── Positioning layout ───────────────────────────────────────────────
+  // Row 0: Classifier (abstract) — center
+  // Row 1: 4 model children spread under it
+  // Row 2: XGBTree  (used by XGBoostClassifier)
+  // Col 0: Preprocessing column
+  // Col 1: Data structures column
+  // Col 2: HPO column
+
+  const cols = {
+    data: { x: 20,   items:['DataFrame','Node','XGBNode','ExtractedData','DataSplit','Metrics','EvalResult'] },
+    pre:  { x: 300,  items:['StandardScaler','OneHotEncoder','SMOTE'] },
+    hpo:  { x: 580,  items:['GridSearchCV','RandomSearchCV','BayesianOptimisation'] },
+  };
+
+  // inheritance tree — centred at x=1050
+  const INH_CX = 1050;
+  const ROW_Y  = [60, 320, 600];
+
+  const layout = {};  // name → {x, y, w, h}
+
+  // Column items
+  for (const [key, col] of Object.entries(cols)) {
+    let cy = 60;
+    for (const nm of col.items) {
+      const cls = CLASSES.find(c=>c.name===nm);
+      if (!cls) continue;
+      const h = cardH(cls);
+      layout[nm] = { x: col.x, y: cy, w: CW, h };
+      cy += h + GAP_Y;
+    }
+  }
+
+  // Inheritance tree
+  const absClass = CLASSES.find(c=>c.name==='Classifier');
+  layout['Classifier'] = { x: INH_CX - CW/2, y: ROW_Y[0], w: CW, h: cardH(absClass) };
+
+  const children = ['LogisticRegression','DecisionTree','RandomForest','XGBoostClassifier'];
+  const totalW = children.length * CW + (children.length-1) * GAP_X;
+  const startX = INH_CX - totalW/2;
+  children.forEach((nm, i) => {
+    const cls = CLASSES.find(c=>c.name===nm);
+    layout[nm] = { x: startX + i*(CW+GAP_X), y: ROW_Y[1], w: CW, h: cardH(cls) };
+  });
+
+  // XGBNode + XGBTree below XGBoostClassifier
+  const xgbcLay = layout['XGBoostClassifier'];
+  layout['XGBTree'] = { x: xgbcLay.x + CW + 50, y: ROW_Y[2], w: CW,
+                        h: cardH(CLASSES.find(c=>c.name==='XGBTree')) };
+  layout['XGBNode'] = { x: xgbcLay.x + CW + 50 + CW + 30, y: ROW_Y[2], w: CW,
+                        h: cardH(CLASSES.find(c=>c.name==='XGBNode')) };
+
+  // SVG canvas size
+  const allX = Object.values(layout).map(l=>l.x+l.w);
+  const allY = Object.values(layout).map(l=>l.y+l.h);
+  const svgW = Math.max(...allX) + 40;
+  const svgH = Math.max(...allY) + 40;
+  svg.setAttribute('width',  svgW);
+  svg.setAttribute('height', svgH);
+  svg.setAttribute('viewBox', `0 0 ${svgW} ${svgH}`);
+
+  let html = '';
+
+  // ── Helper: draw one class card ───────────────────────────────────────
+  function drawCard(cls, lx, ly, lw, lh) {
+    const cat = CAT[cls.cat] || CAT.data;
+    const c   = cat.color;
+    const bg  = cat.bg;
+    const fields  = cls.fields  || [];
+    const methods = cls.methods || [];
+
+    html += `<g class="svg-card" data-name="${cls.name}">`;
+
+    // Shadow
+    html += `<rect x="${lx+3}" y="${ly+3}" width="${lw}" height="${lh}"
+               rx="8" fill="#000" opacity="0.35"/>`;
+    // Body
+    html += `<rect x="${lx}" y="${ly}" width="${lw}" height="${lh}"
+               rx="8" fill="${bg}" stroke="${c}" stroke-width="1.5"/>`;
+    // Header band
+    html += `<rect x="${lx}" y="${ly}" width="${lw}" height="36"
+               rx="8" fill="${c}33"/>`;
+    html += `<rect x="${lx}" y="${ly+28}" width="${lw}" height="8" fill="${c}33"/>`;
+
+    // Left accent strip
+    html += `<rect x="${lx}" y="${ly}" width="4" height="${lh}" rx="2" fill="${c}"/>`;
+
+    let ty = ly + 8;
+    // Stereotype
+    if (cls.abstract || cls.kind==='struct') {
+      const st = cls.abstract ? '«abstract»' : '«struct»';
+      html += `<text x="${lx+lw/2}" y="${ty+7}" text-anchor="middle"
+                 font-family="Segoe UI,sans-serif" font-size="9"
+                 fill="${c}" opacity=".8" font-style="italic">${st}</text>`;
+      ty += 9;
+    }
+    // Class name
+    html += `<text x="${lx+lw/2}" y="${ty+11}" text-anchor="middle"
+               font-family="Courier New,monospace" font-size="13" font-weight="700"
+               fill="${c}">${cls.name}</text>`;
+    ty += 14;
+
+    // Inherits
+    if (cls.inherits) {
+      html += `<text x="${lx+lw/2}" y="${ty+10}" text-anchor="middle"
+                 font-family="Segoe UI,sans-serif" font-size="9" fill="#7880a0"
+                 >&lt; ${cls.inherits}</text>`;
+      ty += 10;
+    }
+
+    ty = ly + 40; // separator
+    html += `<line x1="${lx}" y1="${ty}" x2="${lx+lw}" y2="${ty}" stroke="${c}" stroke-width=".5" opacity=".4"/>`;
+    ty += PAD;
+
+    // Fields
+    for (const f of fields) {
+      const acc = f.acc==='priv' ? '−' : f.acc==='prot' ? '#' : '+';
+      const col = f.acc==='priv' ? '#ff7b7b' : f.acc==='prot' ? '#ffd580' : '#7fdf9b';
+      // Truncate long lines
+      let sig = `${f.type} ${f.name}`;
+      if (sig.length > 28) sig = sig.substring(0,26)+'…';
+      html += `<text x="${lx+10}" y="${ty}" font-family="Courier New,monospace" font-size="10.5">
+        <tspan fill="${col}">${acc} </tspan><tspan fill="#79b8ff">${f.type.replace(/&lt;/g,'<').replace(/&gt;/g,'>').split('<')[0]}</tspan>
+        <tspan fill="#e8e8e8"> ${f.name}</tspan>
+      </text>`;
+      ty += LH;
+    }
+
+    // Separator before methods
+    if (fields.length && methods.length) {
+      html += `<line x1="${lx}" y1="${ty}" x2="${lx+lw}" y2="${ty}" stroke="${c}" stroke-width=".5" opacity=".4"/>`;
+      ty += 4;
+    }
+
+    // Methods
+    for (const m of methods) {
+      const acc = m.acc==='priv' ? '−' : '+';
+      const col = m.acc==='priv' ? '#ff7b7b' : '#7fdf9b';
+      let sig = (m.isctor ? '' : (m.ret||'')+ ' ') + m.name + '(…)';
+      if (sig.length > 30) sig = sig.substring(0,28)+'…';
+      html += `<text x="${lx+10}" y="${ty}" font-family="Courier New,monospace" font-size="10.5">
+        <tspan fill="${col}">${acc} </tspan>
+        <tspan fill="#82cfff">${m.isctor?'':((m.ret||'')).replace(/&lt;/g,'<').replace(/&gt;/g,'>').split('<')[0]+' '}</tspan>
+        <tspan fill="#e8e8e8" font-style="italic">${m.name}</tspan><tspan fill="#7880a0">()</tspan>
+      </text>`;
+      ty += LH;
+    }
+
+    html += `</g>`;
+  }
+
+  // ── Draw all classes ──────────────────────────────────────────────────
+  for (const cls of CLASSES) {
+    const l = layout[cls.name];
+    if (l) drawCard(cls, l.x, l.y, l.w, l.h);
+  }
+
+  // ── Draw inheritance arrows ───────────────────────────────────────────
+  function arrow(fromName, toName, style='inherit') {
+    const f = layout[fromName]; const t = layout[toName];
+    if (!f || !t) return;
+    // from top-center of child to bottom-center of parent
+    const x1 = t.x + t.w/2,  y1 = t.y + t.h;
+    const x2 = f.x + f.w/2,  y2 = f.y;
+    const mid = (y1+y2)/2;
+    const stroke = style==='inherit' ? '#5b8dee' : '#48c78e';
+    const dash   = style==='uses'    ? '6,4' : 'none';
+    html += `<defs><marker id="arr-${fromName}" markerWidth="10" markerHeight="8"
+        refX="9" refY="4" orient="auto">
+      <polygon points="0 0, 10 4, 0 8" fill="${stroke}" opacity=".8"/>
+    </marker></defs>`;
+    html += `<path d="M ${x1},${y1} C ${x1},${mid} ${x2},${mid} ${x2},${y2}"
+      fill="none" stroke="${stroke}" stroke-width="1.5" stroke-dasharray="${dash}" opacity=".7"
+      marker-end="url(#arr-${fromName})"/>`;
+  }
+
+  // Classifier → children
+  ['LogisticRegression','DecisionTree','RandomForest','XGBoostClassifier'].forEach(ch => {
+    arrow('Classifier', ch, 'inherit');
+  });
+
+  // XGBoostClassifier → XGBTree (uses)
+  {
+    const f = layout['XGBTree'];
+    const t = layout['XGBoostClassifier'];
+    if (f && t) {
+      const x1 = t.x+t.w, y1 = t.y+t.h/2;
+      const x2 = f.x,      y2 = f.y+f.h/2;
+      html += `<defs><marker id="arr-uses" markerWidth="10" markerHeight="8"
+          refX="9" refY="4" orient="auto">
+        <polygon points="0 0, 10 4, 0 8" fill="#48c78e" opacity=".8"/>
+      </marker></defs>`;
+      html += `<path d="M ${x1},${y1} C ${(x1+x2)/2},${y1} ${(x1+x2)/2},${y2} ${x2},${y2}"
+        fill="none" stroke="#48c78e" stroke-width="1.5" stroke-dasharray="6,4" opacity=".7"
+        marker-end="url(#arr-uses)"/>`;
+      html += `<text x="${(x1+x2)/2}" y="${y1-6}" text-anchor="middle"
+        font-family="Segoe UI,sans-serif" font-size="10" fill="#48c78e" opacity=".8">&lt;&lt;uses&gt;&gt;</text>`;
+    }
+  }
+
+  // XGBTree → XGBNode (contains)
+  {
+    const f = layout['XGBNode'];
+    const t = layout['XGBTree'];
+    if (f && t) {
+      const x1 = t.x+t.w, y1 = t.y+t.h/2;
+      const x2 = f.x,      y2 = f.y+f.h/2;
+      html += `<defs><marker id="arr-xgbn" markerWidth="10" markerHeight="8"
+          refX="9" refY="4" orient="auto">
+        <polygon points="0 0, 10 4, 0 8" fill="#e8a44a" opacity=".8"/>
+      </marker></defs>`;
+      html += `<path d="M ${x1},${y1} L ${x2},${y2}"
+        fill="none" stroke="#e8a44a" stroke-width="1.5" stroke-dasharray="4,3" opacity=".7"
+        marker-end="url(#arr-xgbn)"/>`;
+      html += `<text x="${(x1+x2)/2}" y="${y1-6}" text-anchor="middle"
+        font-family="Segoe UI,sans-serif" font-size="10" fill="#e8a44a" opacity=".8">&lt;&lt;contains&gt;&gt;</text>`;
+    }
+  }
+
+  // RandomForest uses DecisionTree (via TreeBundle)
+  {
+    const f = layout['DecisionTree'];
+    const t = layout['RandomForest'];
+    if (f && t) {
+      const x1 = t.x+t.w/2-20, y1 = t.y+t.h;
+      const x2 = f.x+f.w/2+20, y2 = f.y+f.h;
+      html += `<defs><marker id="arr-rf-dt" markerWidth="8" markerHeight="6"
+          refX="7" refY="3" orient="auto">
+        <polygon points="0 0, 8 3, 0 6" fill="#48c78e" opacity=".7"/>
+      </marker></defs>`;
+      html += `<path d="M ${x1},${y1} C ${x1},${y1+30} ${x2},${y2+30} ${x2},${y2}"
+        fill="none" stroke="#48c78e" stroke-width="1.2" stroke-dasharray="5,3" opacity=".6"
+        marker-end="url(#arr-rf-dt)"/>`;
+      html += `<text x="${(x1+x2)/2}" y="${y1+45}" text-anchor="middle"
+        font-family="Segoe UI,sans-serif" font-size="9.5" fill="#48c78e" opacity=".7">&lt;&lt;aggregates&gt;&gt;</text>`;
+    }
+  }
+
+  // Section labels
+  function sectionLabel(text, x, y, color) {
+    html += `<rect x="${x-6}" y="${y-16}" width="${text.length*8+12}" height="22" rx="4" fill="${color}22" stroke="${color}44"/>`;
+    html += `<text x="${x}" y="${y}" font-family="Segoe UI,sans-serif" font-size="11"
+      font-weight="600" fill="${color}" letter-spacing="1">${text}</text>`;
+  }
+
+  sectionLabel('DATA STRUCTURES',  cols.data.x, 36,  '#e8a44a');
+  sectionLabel('PREPROCESSING',    cols.pre.x,  36,  '#f7a0a0');
+  sectionLabel('HPO',              cols.hpo.x,  36,  '#a78bfa');
+  sectionLabel('INHERITANCE TREE', INH_CX-80,   36,  '#5b8dee');
+
+  svg.innerHTML = html;
+
+  // Tooltip on hover
+  svg.querySelectorAll('.svg-card').forEach(g => {
+    g.addEventListener('mouseenter', e => {
+      const nm = g.dataset.name;
+      const cls = CLASSES.find(c=>c.name===nm);
+      if (!cls) return;
+      const tip = document.getElementById('tooltip');
+      const nf = (cls.fields||[]).length, nm2 = (cls.methods||[]).length;
+      tip.innerHTML = `<b style="color:#5b8dee">${cls.name}</b><br>${cls.desc||''}<br><span style="color:#7880a0">${nf} fields &bull; ${nm2} methods</span>`;
+      tip.style.opacity = '1';
+      moveTip(e);
+    });
+    g.addEventListener('mousemove', moveTip);
+    g.addEventListener('mouseleave', () => {
+      document.getElementById('tooltip').style.opacity='0';
+    });
+    g.addEventListener('click', () => {
+      switchView('cards', document.querySelector('.tab:not(.active)'));
+      // scroll to matching card
+      setTimeout(() => {
+        const nm = g.dataset.name.toLowerCase();
+        const card = document.querySelector(`.card[data-name="${nm}"]`);
+        if (card) {
+          card.scrollIntoView({behavior:'smooth', block:'center'});
+          card.style.boxShadow='0 0 0 2px var(--accent)';
+          setTimeout(()=>card.style.boxShadow='',1800);
+        }
+      }, 100);
+    });
+  });
+}
+
+function moveTip(e) {
+  const tip = document.getElementById('tooltip');
+  tip.style.left = (e.clientX+14)+'px';
+  tip.style.top  = (e.clientY-10)+'px';
+}
+
+// Draw SVG on first load
+drawSVG();
+</script>
+</body>
+</html>
