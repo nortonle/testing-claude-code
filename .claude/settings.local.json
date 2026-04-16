@@ -19,7 +19,19 @@
       "Read(//opt/homebrew/include/**)",
       "Read(//opt/homebrew/lib/**)",
       "Bash(g++ -std=c++17 -O2 -o /tmp/churn_test churn_prediction.cpp)",
-      "Bash(g++ -std=c++17 -O2 -Wall -Wextra -o /tmp/churn_test churn_prediction.cpp)"
+      "Bash(g++ -std=c++17 -O2 -Wall -Wextra -o /tmp/churn_test churn_prediction.cpp)",
+      "Bash(bq ls:*)",
+      "Bash(gcloud alpha:*)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(bq show:*)",
+      "Bash(gcloud auth:*)",
+      "Bash(gcloud projects list:*)",
+      "Bash(/Users/nortonle/tools/mcp-toolbox --help)",
+      "mcp__bigquery__list_dataset_ids"
     ]
-  }
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "bigquery"
+  ]
 }

@@ -1,10 +1,10 @@
 {
   "mcpServers": {
     "bigquery": {
-      "command": "/Users/nortonle/tools/mcp-toolbox",
+      "command": "/Users/nortonle/tools/mcp-toolbox/toolbox",
       "args": ["--prebuilt", "bigquery", "--stdio"],
       "env": {
-        "BIGQUERY_PROJECT": "javamaster"
+        "BIGQUERY_PROJECT": "javamaster19"
       }
     }
   }
