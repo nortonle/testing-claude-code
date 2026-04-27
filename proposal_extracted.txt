@@ -1,0 +1,1682 @@
+ADVANCED PREDICTIVE MODELLING FOR CUSTOMER CHURN IN BANKING: A COMPARATIVE
+        ANALYSIS OF MACHINE LEARNING AND DEEP LEARNING TECHNIQUES
+
+
+
+
+                                 DUC LE
+
+
+
+
+                             Research Proposal
+
+
+
+
+                                JULY 2025
+Table of Contents
+LIST OF TABLES ....................................................................................................................................................................... 3
+LIST OF FIGURES ...................................................................................................................................................................... 3
+LIST OF APPENDICES.............................................................................................................................................................. 3
+ABSTRACT ................................................................................................................................................................................. 4
+1.        BACKGROUND ................................................................................................................................................................ 4
+2.        LITERATURE REVIEW.................................................................................................................................................. 7
+     2.1.            MACHINE LEARNING (ML) APPROACHES FOR CHURN PREDICTION .................................................................................. 10
+     2.2.            DEEP LEARNING (DL) APPROACHES FOR CHURN PREDICTION .......................................................................................... 10
+     2.3.            IMBALANCE HANDLING AND PERFORMANCE METRICS ........................................................................................................ 11
+     2.4.            RESEARCH GAPS AND OPPORTUNITIES ................................................................................................................................... 11
+3.        RESEARCH QUESTIONS ............................................................................................................................................ 12
+4.        AIM & OBJECTIVES..................................................................................................................................................... 13
+     4.1.            AIM: ............................................................................................................................................................................................... 13
+     4.2.            OBJECTIVES: ................................................................................................................................................................................. 13
+5.        SIGNIFICANCE OF THE STUDY................................................................................................................................ 14
+6.        SCOPE OF THE STUDY ............................................................................................................................................... 15
+     6.1.            INCLUSIONS: ................................................................................................................................................................................. 15
+     6.2.            EXCLUSIONS: ................................................................................................................................................................................ 15
+7.        METHODOLOGY .......................................................................................................................................................... 16
+     7.1.     DATASET DESCRIPTION .............................................................................................................................................................. 17
+     7.2.     DATA PREPROCESSING ............................................................................................................................................................... 17
+        Missing Data Handling ..........................................................................................................................................................................17
+        Categorical Feature Encoding ............................................................................................................................................................19
+        Feature Scaling .........................................................................................................................................................................................20
+        Class Imbalance Treatment .................................................................................................................................................................21
+     7.3.     FEATURE ENGINEERING ............................................................................................................................................................. 23
+     7.4.     TRAIN–TEST SPLIT AND VALIDATION ..................................................................................................................................... 24
+     7.5.     ALGORITHMS CONSIDERED ........................................................................................................................................................ 25
+        Comparative Perspective (ML vs. DL in the four-core metrics) ...........................................................................................25
+        Machine Learning Models ....................................................................................................................................................................26
+        Deep Learning Models............................................................................................................................................................................26
+     7.6.     HYPERPARAMETER OPTIMISATION .......................................................................................................................................... 27
+        Machine Learning Models ....................................................................................................................................................................27
+        Deep Learning Models............................................................................................................................................................................28
+     7.7.     EVALUATION METRICS ............................................................................................................................................................... 29
+     7.8.     INTERPRETABILITY ANALYSIS ................................................................................................................................................... 34
+8.        REQUIRED RESOURCES ............................................................................................................................................ 35
+9.        RESEARCH PLAN......................................................................................................................................................... 35
+10.            LIMITATIONS ......................................................................................................................................................... 37
+REFERENCES .......................................................................................................................................................................... 38
+APPENDIX ............................................................................................................................................................................... 40
+List of Tables
+TABLE 1: LITERATURE REVIEW SUMMARY ....................................................................................................................................................... 7
+TABLE 2: OBJECTIVES AND RESEARCH QUESTIONS ALIGNMENT ................................................................................................................ 13
+TABLE 3: COMPARISON OF MISSING DATA IMPUTATION METHODS ......................................................................................................... 18
+TABLE 4: COMPARISON OF ENCODING METHODS ......................................................................................................................................... 19
+TABLE 5: COMPARISON OF CLASS IMBALANCE TREATMENT TECHNIQUES .............................................................................................. 21
+TABLE 6: MODEL PERFORMANCE COMPARISON ............................................................................................................................................ 25
+TABLE 7: COMPARISON OF HYPERPARAMETER OPTIMISATION APPROACHES FOR MACHINE LEARNING MODELS .......................... 27
+TABLE 8: RUNTIME BENCHMARKING PROTOCOL FOR EXECUTION TIME ................................................................................................. 31
+TABLE 9: EVALUATION METRICS AND STATISTICAL SIGNIFICANCE USING CROSS VALIDATION ........................................................... 32
+TABLE 10: TABLE OF DETAIL RESEARCH PLAN ............................................................................................................................................ 35
+
+
+
+
+List of Figures
+FIGURE 1: RESEARCH METHODOLOGY WORKFLOW..................................................................................................................................... 16
+FIGURE 2 - EXAMPLE OF STANDARDISATION SCALING ................................................................................................................................. 21
+FIGURE 3 - DEMONSTRATION OF STRATIFIED K-FOLD CROSS-VALIDATION ............................................................................................ 24
+FIGURE 4: CONFUSION MATRIX ........................................................................................................................................................................ 29
+FIGURE 5: WORKFLOW OF STATISTICAL SIGNIFICANCE TEST .................................................................................................................... 33
+FIGURE 6 - RESEARCH PLAN ............................................................................................................................................................................. 35
+
+
+
+
+List of Appendices
+APPENDIX A: DATASET STRUCTURE AND DESCRIPTION .............................................................................................................................. 40
+APPENDIX B: PROPOSED ENGINEERED FEATURES ....................................................................................................................................... 42
+ABSTRACT
+
+Customer churn in banking is a costly problem, as retaining existing customers is significantly
+more affordable than new customer acquisition. With the help of predictive analytics algorithms,
+banks can easily identify at-risk customer at an early stage and intervene with appropriate retention
+planning. Using a public Kaggle dataset of over 5,000 banking customers, this paper studies churn
+prediction applying both advanced machine learning (ML) and deep learning (DL) techniques.
+
+The methodology combines data preprocessing, model training with appropriate hyperparameter
+tuning, model evaluation and interpretability analysis. Data preprocessing covers missing value
+imputation, one hot encoding for low-cardinality categorical feature, feature scaling and class
+imbalance treatment using SMOTE and GAN-based method. While Logistic Regression acts as
+baseline, Decision Tree, Random Forest, and XGBoost are candidates for ML, Artificial Neural
+Networks as baseline and Deep Neural Networks are selected for DL. Hyperparameter tuning is
+applied with Optuna, and model performance is evaluated using accuracy, precision, recall, F1-
+score, AUC, and execution time.
+
+To ensure actionable insight, the final model must be interpreted and understood correctly. It is
+necessary to employ interpretability analysis such as SHAP. This enables both global and local
+explanations of model predictions. The paper results are expected to provide a fair view of
+performance versus computational efficiency, guiding practitioners in figuring out the best
+predictive framework for real-time deployment in banking. It is noted, however, that deep learning
+models are not subjected to full hyperparameter optimisation due to dataset size and computational
+constraints, representing a conscious trade-off within the study’s scope.
+
+
+1. BACKGROUND
+
+In banking sector, customer churn, the behavior by which clients terminate their relationship with
+a bank, remains one of the most pressing strategic challenges. New customer acquisition cost is
+approximately about five and seven times more costly than old customer retention cost thus even
+small retention increase can result in substantial bottom-line improvements result in substantial
+bottom-line improvements (Bhuria et al., 2025; Singh, H., et al., 2024). Churn has several impacts.
+Besides its direct impact on revenue from deposit, lending and fee-based services, it has two
+additional indirect losses. It is a long-term loss because the loss of cross sales opportunities. The
+other is the loss of brand loyalty (AbdelAziz et al., 2025; Abbas et al., 2023).
+
+Nowadays, due to the rise of fintech rivals, neo bank, and technology-driven service models, the
+competitive intensity in retail and digital banking has increased sharply. Especially, with the
+technology innovation, mobile banking or digital banking enables low barrier to entry, allowing
+customers to compare and move to alternative banks in real time (Murindanyi et al., 2025).
+Therefore, high value customer retention is no longer a simple marketing function, but it requires
+a cooperation across functions. The recent customer retention strategy usually includes analytics,
+operations and strategic planning (Advances in Economics, Management & Political Sciences,
+2024).
+While banking has its own structural drivers of churn, similar experiences are observed in other
+industries. In telecommunications, because of high competition and low switching barriers, various
+churn prediction models ranging from logistic regression to advanced ensemble methods have been
+comprehensively developed and demonstrated strong performance (Boozary, 2025). Similarly,
+churn prediction models, based on purchase frequency, browsing behaviour, and promotional
+response patterns, are also well implemented in e-commerce to detect high risk of platform leaving.
+Those models that are trained using gradient boosting and deep neural networks algorithms, have
+shown particularly strong recall (Ahmed et al., 2023).
+
+There is clear proof saying that despite the domain differences, the methodological challenges such
+as class imbalance, feature selection, and the trade-off between interpretability and accuracy are
+remarkably consistent. These shared analytical challenges have powered the search for more
+sophisticated and generalisable predictive frameworks that can be applied across multiple
+industries, including banking.
+
+Predictive analytics has become an essential competence for modern retention planning in other
+industries. At early stage, traditional statistical models such as logistic regression were used for
+churn prediction in banking. They were good for their interpretability yet their ability in capturing
+complex non-linear behaviors were very limited (AbdelAziz et al., 2025; Patel, S., et al., 2024).
+Thanks to the rapid evolution of machine learning (ML), ensemble methods such as random forests
+and gradient boosting has been introduced. They leverage multiple base learners to improve
+accuracy and generalization (Singh, P., et al., 2025). These models have demonstrated competitive
+performance in banking datasets, as well as in related sectors like telecommunications and e-
+commerce (Boozary, 2025). Nevertheless, when feature relations are highly complex or when
+predictive signals are embedded in high-dimensional, noisy, or heterogeneous data a limitation,
+even the most advanced ML ensembles can struggle. Hence, deep learning has emerged as a
+powerful approach.
+
+More recently, deep learning (DL) approaches have expanded the analytical capabilities by
+enabling the automatic extraction of complex feature interactions from high-dimensional data.
+Architectures such as artificial neural networks (ANNs) and deep neural networks (DNNs) have
+achieved notable improvements in recall and F1-score, especially when combined with appropriate
+feature scaling and optimization (Domingos, Ojeme & Daramola, 2021). Hybrid models that
+integrate convolutional neural networks (CNNs) with recurrent structures like bidirectional long
+short-term memory (BiLSTM) have further demonstrated strong performance in identifying subtle
+churn signals (Ahmed et al., 2023; Zhang et al., 2024). In comparative experiments, Singh et al.,
+(2023) and Adamu et al., (2025) report that DL can outperform gradient boosting methods under
+certain configurations, although at a higher computational cost.
+
+Although DL performance is impressive, practical application in banking is considerably low
+because of two main reasons. DL models usually consume significant computational resources and
+longer training times and are inherently less interpretable than traditional ML (Basit et al., 2024).
+Especially, this interpretability challenge is getting more significant in regulated environments,
+where explainable AI (XAI) is becoming a compliance expectation (Tékouabou, 2022; Ma et al.,
+2022). By integrating interpretability techniques such as SHAP values into churn models few
+papers such as Li, X., et al. (2025) and Singh, A., et al. (2024) address this gap between predictive
+accuracy and regulatory transparency.
+Class imbalance, where churn customers play only a small proportion of the total customer base,
+is another repeated challenge in churn prediction. During training, models may be biased toward
+the majority class, reducing the ability to detect true churners, even when overall accuracy appears
+high. A range of techniques have been proposed to address this, including synthetic minority over-
+sampling (SMOTE), adaptive synthetic sampling (ADASYN), and more recently, generative
+adversarial network (GAN)-based oversampling (Adiputra, Wanchai & Lin, 2025). In addition,
+cost-sensitive learning approaches, where misclassifications of churners incur higher penalties,
+have been shown to improve recall and business impact in ensemble models (Bhuria et al., 2025;
+Abubakar et al., 2024).
+
+Hyperparameter tuning plays a critical role in maximizing the potential of both ML and DL models.
+Although traditional methods such as grid search and random search are still common, they may
+be inefficient for complex models with large parameter spaces. Optuna, a more advanced
+framework, has been introduced to restructure the search process, applying pruning strategies to
+terminate underperforming trials early (Domingos, Ojeme & Daramola, 2021; Patel et al., 2023).
+As highlighted by Marmion et al. (2012) and Molnar (2020), model interpretability is considered
+together with hyperparameter tuning strategies to ensure that tuning does not compromise
+transparency.
+
+Despite extensive prior work, there are few gaps remain. First, although both ML and DL have
+been used to churn prediction in banking, there is a lack of direct head-to-head comparisons
+conducted under identical experimental setups (AbdelAziz et al., 2025; Basit et al., 2024). Second,
+execution time is usually underestimated and so frequently overlooked as a performance metric
+regardless its significance for real-time inference systems (Singh, P., et al., 2025). Third, there is
+only a limited empirical evidence evaluating the effect of preprocessing, imbalance handling, and
+hyperparameter optimization combination on model performance in banking sector (Adiputra,
+Wanchai & Lin, 2025; Patel et al., 2023).
+
+By combining three actions at once, this thesis seeks to narrow these gaps. First, it evaluates both
+ML and DL algorithms on a public banking churn dataset. Second, it applies sophisticated
+sampling approaches and rigorous hyperparameter tuning. Lastly, the paper also comprehensive
+evaluates predictive performance and operational efficiency. The first goal of this paper is to
+assists practitioners in model selection that balance performance, interpretability, and deployment
+feasibility. Another goal is to contribute to an academic understanding of predictive modeling in
+financial services.
+2. LITERATURE REVIEW
+
+Customer churn prediction is an interesting problem that has always attracted many researcher from
+all over the world and across all industries. Each study brings domain specific insight and
+methodological innovations. In banking, this problem has grown from traditional statistical
+approaches to advanced machine learning (ML) and deep learning (DL) architectures, resulting
+from a bigger trends from other sectors such as telecommunications and ecommerce (Boozary,
+2025; Ahmed et al., 2023). As stated in the background sections, these industries share common
+analytical challenges class imbalance, the need for robust feature selection, and the trade-off
+between interpretability and predictive accuracy despite differences in customer behaviour and
+operational contexts. As supported by the cross-industry evidence, it is reasonable for evaluating a
+various set of ML and DL approaches in the banking sector. Besides the motivation to benchmark
+performance, it is also to access their adaptability to the sector’s unique regulatory and customer
+engagement requirements.
+
+In banking, predictive analytics for churn must address the dual challenge of delivering high
+predictive accuracy while meeting operational, regulatory, and interpretability requirements. This
+section synthesizes prior work into three main themes: machine learning approach, deep learning
+approach, performance metrics and imbalance handling. The table below describe a high-level
+summary of prior literatures.
+
+                                Table 1: Literature review summary
+                      Problem         Methodology       Dataset      Interpretation of       Citation
+     Section                                             Used             Results
+                   Low accuracy      Logistic          Banking       Logistic regression    Abbas et
+                   and overfitting   Regression,       dataset       provides               al. (2023)
+                   in simple         Decision Trees                  interpretability but
+                   decision trees                                    lower accuracy
+                                                                     than ensembles
+                   Benchmarking      Gradient      Banking           Gradient boosting      AbdelAziz
+                   ML vs DL for      Boosting,     dataset           outperforms            et al.
+                   churn             Random Forest                   bagging ensembles      (2025)
+                   prediction                                        when tuned
+   Machine         Evaluating        Logistic          Banking       Logistic regression    Patel, S.,
+   Learning        baseline ML       Regression,       dataset       valued for             et al.
+  Approaches       classifiers       Decision Trees                  transparency, DTs      (2024)
+                                                                     for interpretability
+                   Improving         Random            Banking       Ensembles improve      Singh, P.,
+                   prediction        Forest,           dataset       generalisation and     et al.
+                   stability         XGBoost                         reduce overfitting     (2025)
+                   Cross-industry    Random            Ecom          Boosting               Boozary
+                   churn             Forest,           dataset       techniques yielded     (2025)
+                   application       boosting                        highest accuracy
+                Cost-sensitive     SVM, Logistic   Banking   SVM captures            Abubakar
+                churn              Regression      dataset   nonlinear decision      et al.
+                classification                               boundaries              (2024)
+                Ensemble           Hybrid          Telco     Hybrid ensembles        Bhuria et
+                stability in       Ensembles       dataset   yield more stable       al. (2025)
+                churn models       (Voting,                  predictions
+                                   Stacking)
+                Multi-sector       Random          Banking   Ensemble methods        Murindan
+                churn analysis     Forest,         &         robust across           yi et al.
+                                   ensembles       Telecom   domains                 (2025)
+                                                   dataset
+                Manual feature     ANN             Banking   ANN improves            AbdelAziz
+                engineering                        dataset   recall over ML          et al.
+                limits                                       baselines               (2025)
+                complexity
+                Exploring DL       DNN             Banking   DNN achieves            Adamu et
+                model                              dataset   higher F1 when          al. (2025)
+                effectiveness                                tuned properly
+                Comparative        DNN             Banking   DNN captures            Singh, H.,
+                DL for churn                       dataset   higher-order            et al.
+                prediction                                   feature interactions    (2024)
+                Feature-rich       DNN             Banking   DNN shows               Basit et al.
+                DL for churn                       dataset   significant             (2024)
+                                                             accuracy gains
+Deep Learning   Sequential         CNN–            Telco     CNN–BiLSTM              Ahmed et
+ Approaches     dependencies       BiLSTM          dataset   improves recall by      al. (2023)
+                in churn           hybrid                    capturing temporal
+                                                             dependencies
+
+                Hybrid             CCP-Net         Banking   CCP-Net detects         Zhang et
+                network for                        dataset   spatial–temporal        al. (2024)
+                churn                                        churn patterns
+
+                Temporal           LSTM            Telco     LSTM improves           Sezer et
+                patterns in                        dataset   sequence                al. (2018)
+                churn                                        modelling in churn
+
+                Complexity         DL with         Banking   Feature selection       Ma et al.
+                and                feature         dataset   reduces complexity      (2022)
+                interpretability   selection                 and cost
+                High cost of       Accuracy,       Banking   Recall is most          Bhuria et
+                misclassificati    Recall, F1-     dataset   critical for business   al. (2025)
+Performance     on                 score                     impact
+  Metrics       Benchmarking       Accuracy,       Banking   Precision–recall        AbdelAziz
+                metrics in         Precision,      dataset   trade-off must be       et al.
+                churn              Recall                    balanced                (2025)
+                 Emphasis on        Recall, F1-      Banking   Recall                Singh, P.,
+                 churn              score            dataset   improvements          et al.
+                 detection                                     strongly affect       (2025)
+                                                               business outcomes
+                 Metric         Accuracy,            Banking   F1 balances recall–   Adiputra,
+                 evaluation     Recall, F1-          +         precision better      Wanchai
+                 across domains score                Telecom   than accuracy         & Lin
+                                                     dataset                         (2025)
+                 Severe class       SMOTE            Banking   Improves recall by    Tékouabo
+                 imbalance          oversampling     dataset   increasing minority   u (2022)
+                                                               samples
+
+                 Advanced           GAN-based        Banking   GAN generates         Ali, M., et
+                 imbalance          oversampling     dataset   realistic minority    al. (2024)
+                 correction                                    samples
+ Imbalance
+                 Data               Cost-sensitive   Telco     Penalising churner    Imran et
+  Handling
+                 imbalance in       learning         dataset   misclassification     al. (2023)
+                 churn                                         improves recall
+
+                 Hybrid             RUSBoost         Banking   Combines under-       Bhuria et
+                 ensemble                            dataset   sampling +            al. (2025)
+                 imbalance                                     boosting
+                 correction                                    effectively
+                 Lack of            SHAP,            Banking   SHAP improves         Li, X., et
+                 interpretability   interpretable    dataset   transparency with     al. (2025)
+                 in black-box       ensembles                  minimal accuracy
+                 models                                        loss
+                 Interpretable      LIME + ML        Banking   LIME explanations     Singh, A.,
+    ML           churn              models           dataset   enhance trust in      et al.
+Explainability   prediction                                    churn predictions     (2024)
+
+                 Oversampling       SMOTE with       Banking   Improves recall       Tékouabo
+                 +                  interpretable    dataset   while preserving      u (2022)
+                 interpretability   ensembles                  interpretability
+
+                 Over-              Stratified k-    Banking   Cross-validation      Ahmed et
+                 optimistic         fold CV          dataset   provides robust       al. (2023)
+                 evaluation                                    estimates
+                 Statistical        Significance     Banking   Validates             Marmion
+ Evaluation      confirmation       testing          dataset   differences           et al.
+  Strategy       of models                                     between models        (2012)
+
+                 Interpretability   Explainability   Banking   Interpretability      Molnar
+                 as complement      frameworks       dataset   enhances trust in     (2020)
+                                                               high-performing
+                                                               models
+2.1. Machine Learning (ML) Approaches for Churn Prediction
+
+For churn prediction problem, it is nature for data to be well structure in tabular format, and ML
+algorithms are well known for their strong performance on that kind of data. Therefore, ML has
+been always a wise choice for churn prediction. Each ML algorithms are well known for their
+characteristics.
+
+Logistic Regression (LR) is very good for its transparency and statistically simple (Abbas et al.,
+2023; AbdelAziz et al., 2025) and Support Vector Machines (SVM) is worthy for their ability to
+handle nonlinear decision boundaries (Abubakar et al., 2024). Decision Tree (DT) algorithm is the
+best for their interpretability and rapid inference, which make it a good choice for customer
+retention system deployment (Bhuria et al., 2025; Patel, S., et al., 2024). Those three models
+traditional, well-known ML algorithms, and they are acting as bassline. However, DT usually falls
+behind compared to ensemble methods (Singh, P., et al., 2025).
+
+Random forest (RF) models, which combine multiple DTs through bagging and random feature
+selection, have been shown to improve accuracy and generalization while mitigating overfitting
+(Boozary, 2025). Gradient boosting algorithms, including Gradient Boosted Decision Trees
+(GBDT) and XGBoost, offer further refinements by sequentially refining weak learners (Adiputra,
+Wanchai & Lin, 2025; AbdelAziz et al., 2025; Li, X., et al., 2025). According to Patel et al., (2023)
+if boosting methods are properly tuned, they may outperform bagging ensembles. Hybrid ensemble
+strategies such as voting classifiers and stacking have been applied to combine strengths from
+multiple algorithms, often yielding more stable predictions than any single model (Murindanyi et
+al., 2025).
+
+In practice, one of the barriers to apply ML is the difficulty to understand them. Therefore,
+nowadays explainability has also begun as a focus in ML-based churn models. By integrating
+interpretable machine learning frameworks e.g. SHAP and LIME, into banking churn prediction,
+Li, X., et al. (2025) and Singh, A., et al. (2024) successfully enable transparency without
+significantly sacrificing accuracy. Tékouabou (2022) proposes an approach that combines SMOTE
+oversampling with interpretable ensemble models to improve both performance and explainability.
+
+2.2. Deep Learning (DL) Approaches for Churn Prediction
+
+Deep learning (DL) offers the ability to automatically learn complex feature interactions, reducing
+the need for manual feature engineering. Artificial neural networks (ANNs) have been applied in
+banking churn prediction with encouraging results, often outperforming baseline ML models in
+recall and F1-score (AbdelAziz et al., 2025; Domingos, Ojeme & Daramola, 2021; Adamu et al.,
+2025). Deep neural networks (DNNs), which add multiple hidden layers to ANNs, further enhance
+the modelling of high-order feature interactions (Singh, H., et al., 2024; Basit et al., 2024).
+
+Hybrid DL architectures combine different network types to capture both spatial and temporal
+relationships in customer behavior. Ahmed et al. (2023) propose a CNN–BiLSTM hybrid for telco
+churn prediction, achieving substantial recall improvements, while Zhang et al. (2024) present
+CCP-Net, a hybrid neural network framework adaptable to banking datasets. Sezer et al. (2018)
+demonstrate that LSTM-based architectures can capture sequential dependencies, an approach
+relevant for modelling transaction histories in banking.
+Recent studies are also exploring feature selection within DL pipelines to reduce model complexity
+and improve training efficiency. Abbas et al. (2023) demonstrate the successful adaptation of DL
+models to banking data through domain-specific preprocessing.
+
+While DL models deliver strong predictive performance, they present challenges in interpretability
+and computational demands (Adiputra, Wanchai & Lin, 2025; Murindanyi et al., 2025). Ma et al.
+(2022) stress the importance of interpretable AI in banking, noting that DL models require post-
+hoc explanation methods to meet regulatory requirements.
+
+2.3. Imbalance Handling and Performance Metrics
+
+Class imbalance is a persistent problem in churn prediction across industries. There are two
+approaches, either data level or algorithm level. Data-level techniques such as SMOTE (Adiputra,
+Wanchai & Lin, 2025; Tékouabou, 2022) and GAN-based oversampling (Adiputra, Wanchai &
+Lin, 2025) have been used to increase minority class representation. Algorithm-level methods,
+including cost-sensitive learning (Bhuria et al., 2025) and probability calibration techniques
+(Abubakar et al., 2024), have been employed to prioritize churner detection.
+
+The choice of performance metrics is critical in churn prediction, where misclassifying a churner
+carries a greater business cost than a false positive. There are four widely used metrics, which are
+accuracy, precision, recall and F1-score (Adiputra, Wanchai & Lin, 2025; Bhuria et al., 2025). In
+banking churn prediction, among those four metrics, recall is exclusively key. Because retaining
+an at-risk customer can return higher long-term value (AbdelAziz et al., 2025; Singh, P., et al.,
+2025).
+
+Evaluation strategies normally involve k-fold cross-validation to ensure robust performance
+estimates. Ahmed et al. (2023) and Marmion et al. (2012) support for statistical significance
+testing to validate observed differences between models, while Molnar (2020) emphasizes
+interpretability as an essential complement to predictive metrics.
+
+2.4. Research Gaps and Opportunities
+
+After studying many papers, there are still some gaps needed to be deeply investigated and
+resolved. First, it is quite rare to find comparative studies, which evaluate ML and DL models
+under identical banking domain conditions (AbdelAziz et al., 2025; Basit et al., 2024).
+
+Second, although execution time is an operationally critical factor for real-time interventions, it is
+usually ignored from and evaluation always focuses on predictive performance (Singh, P., et al.,
+2025).
+
+Third, preprocessing, imbalance handling, and hyperparameter tuning are often applied in isolation
+rather than systematically combined and evaluated for their cumulative effect on performance
+(Adiputra, Wanchai & Lin, 2025; Patel et al., 2023). The adoption of advanced optimization
+frameworks such as Optuna remains limited in banking churn research, despite evidence of its
+efficiency (Domingos, Ojeme & Daramola, 2021).
+Finally, besides predictive performance and execution time, the result explainability is also very
+important and should be taken with enough care. Studies like Li, X., et al. (2025), Singh, A., et al.
+(2024), and Ma et al. (2022) point to the need for churn prediction systems that are both accurate
+and interpretable, aligning with regulatory requirements and enhancing stakeholder trust.
+
+
+3. RESEARCH QUESTIONS
+
+This research is guided by four central questions derived from both literature gaps and the
+operational needs of banking institutions.
+
+First, it presents a head-to-head comparison of how selected machine learning and deep learning
+models perform in churn prediction in banking sector under a reliable experimental basis. Despite
+there are few papers evaluate these models individually (AbdelAziz et al., 2025; Singh, H., et al.,
+2024; Adamu et al., 2025), few offer direct comparative analysis within the same data and
+processing conditions.
+
+Second, the essential requirement of go-to-market churn prediction in real time retention system in
+banking sector is computational execution time must be quick. Although execution time is crucial
+factor, it is usually underestimated compared to predictive performance according to Singh, P., et
+al. (2025). This paper investigates the trade-off between those two factors and to re-evaluate the
+role of ensemble methods.
+
+Third, it studies how class imbalance handling approaches and feature engineering affects churn
+prediction performance in banking industry. It is believed that those techniques have a considerably
+impact on recall and F1-score (Adiputra, Wanchai & Lin, 2025; Tékouabou, 2022; Adiputra,
+Wanchai & Lin, 2025).
+
+Besides class imbalance handling method, hyperparameter tuning can extensively increase
+predictive accuracy yet it is rarely assessed across model families within a unified experimental
+setting (Domingos, Ojeme & Daramola, 2021; Patel et al., 2023). The next question investigates
+the usefulness of different hyperparameter tuning methods for both ML and DL models.
+
+Despite how well predictive models perform, they are still none-senses to business stake holders if
+they don’t understand them. The final question address how interpretability analysis help to gain
+trust from entrepreneurs.
+
+In short, this research addresses:
+
+   •   How machine learning and deep learning models perform in churn prediction across
+       multiple performance metrics, in particular banking industry.
+   •   How predictive performance trades off with execution time for real-time deployment.
+   •   How preprocessing and imbalance-handling techniques influence model performance.
+   •   How different hyperparameter optimisation strategies perform across ML and DL models.
+   •   How interpretability analysis brings more understanding to stake holders.
+4. AIM & OBJECTIVES
+4.1. Aim:
+
+This paper’s primary purpose is to carefully evaluate advanced predictive models for customer
+attrition in the banking sector, using both traditional machine learning algorithms and deep learning
+architectures. By conducting a methodical comparative analysis, the study aims to identify more
+effective solutions in terms of predictive performance, computational efficiency, and
+interpretability thereby offering actionable insights for improving customer retention strategies.
+
+4.2. Objectives:
+
+   i.   To review existing literature on churn prediction and identify practical gaps, particularly in
+        comparing machine learning and deep learning algorithms in banking.
+  ii.   To implement and evaluate machine learning and deep learning models on a common
+        banking dataset. The performance is evaluated across multiple metrics.
+ iii.   To analyse the trade-off between predictive performance and execution time, as well as the
+        impact of preprocessing and class-imbalance treatments on model.
+ iv.    To assess the effectiveness of different hyperparameter tuning methods in enhancing both
+        machine learning and deep learning models and derive useful insights for deployment in
+        banking sectors.
+  v.    To explain the difficulty in predictive models to typical executives.
+
+The table below sums up the objectives and research questions alignment.
+
+                        Table 2: Objectives and Research Questions alignment
+                   Objectives                                     Research questions
+ Review literature & identify gaps (ML vs DL        How do ML and DL models compare in
+ in banking churn)                                  predicting banking churn across metrics?
+ Implement ML & DL models and benchmark             How does predictive performance trade off
+ across metrics                                     with execution time in real-time deployment?
+ Investigate performance-execution time trade-      How do preprocessing and imbalance-handling
+ off & preprocessing impact                         techniques influence model performance?
+ Evaluate       hyperparameter    optimisation      How do different hyperparameter optimisation
+ strategies for ML & DL                             strategies perform across ML and DL models?
+ Explain predictive model to business people.       How does interpretability analysis bring more
+                                                    understanding to stake holders?
+5. SIGNIFICANCE OF THE STUDY
+
+This study offers banks and financial institutes an analytical recommendation on the proper
+predictive model application for customer retention planning. Even though predictive analytics has
+certain reputation in customer retention actions, it is scarce to see a head-to-head comparison of
+machine learning and deep learning techniques on banking specific datasets (AbdelAziz et al.,
+2025; Singh, H., et al., 2024). Given that absence of comparison research, banking customer
+retention strategies are often determined by outcome from many different settings, which may not
+reflect standard behaviors in financial services specific to the financial services sector.
+
+As discussed earlier in background sections, there are some gaps between previous literature and
+expectation. This study seeks to narrow those gaps. First, it brings both machine learning and deep
+learning model under identical experimental settings, which is same datasets for the same industry.
+Second, it also evaluates those algorithms in term of predictive performance which are accuracy,
+precision, recall, F1-score, AUC and execution time. Those metrics are discussed detailly in
+methodology section. Execution time is often underestimated in model section studies. It is
+carefully evaluated in this paper, because it is essentially efficiency for real time retention systems,
+where milliseconds may result in wrong decision making (Singh, P., et al., 2025).
+
+According to prior works, by integrating modern imbalance treatment and hyperparameter tuning
+can remarkably increase model sensitivity to churn (Ali, M., et al. 2024, Imran et al. 2023, and
+Bhuria et al. 2025). Hence, this study tries to apply this concept across several machine learning
+and deep learning in banking specific dataset. This study aims to provide a practical guidance data
+science teams aiming to optimize returns on analytics investments.
+
+In banking sectors, banking practitioners are often cautious and may distrust models they cannot
+understand. Hence, this paper also aims to discuss explainable AI (XAI), which is said that it may
+help to increase interpretability. According to Li, X., et al. (2025), Singh, A., et al. (2024), and Ma
+et al. (2022), the interpretability frameworks promises that study findings are interpreted in such a
+way that ordinary people may grasp the underlying rationale.
+
+This work enhances academic knowledge and industrial practice by providing a validated and
+replicable methodology for predicting turnover in banking. The insights will assist decision-makers
+in choosing models that perform well in offline evaluations while meeting the operational,
+regulatory, and strategic requirements of live banking environments. This puts predictive analytics
+as an essential facilitator of sustainable customer relationship management amid increased
+competition and digital change.
+6. SCOPE OF THE STUDY
+6.1. Inclusions:
+
+   •   Analysis is limited to the provided Kaggle banking churn dataset, consisting of over 5,000
+       customer records with demographic, behavioural, and account-related attributes.
+   •   Models evaluated will be confined to the specified machine learning and deep learning
+       algorithms. The list of algorithms is described more detail in methodology section.
+   •   Evaluation will be conducted using six metrics: accuracy, precision, recall, and F1-score,
+       AUC and execution time. Those metrics and selection rationale are explained detailly in
+       methodology section.
+   •   Machine learning hyperparameter tuning will be performed using Grid Search, Random
+       Search and Optuna. Deep learning hyperparameter will be set using prior study setups.
+
+6.2. Exclusions:
+
+   •   Real-time data streaming architectures and machine learning ops for continuous
+       integration/continuous development (CI/CD).
+   •   Customer churn prediction in non-banking domains.
+   •   Other deep learning architectures such as convolutional or recurrent networks are not part
+       of this study, because of computational constraints.
+   •   Full hyperparameter tuning for deep learning model is excluded from this study. While
+       machine learning models are properly tuned, deep learning models are using previous
+       literature configurations. It may reflect a conscious trade-off between fairness,
+       computational feasibility and scope.
+7. METHODOLOGY
+
+This study adopts a quantitative, supervised learning approach to predict customer churn in
+banking, enabling a controlled comparison of machine learning (ML) and deep learning (DL)
+methods under consistent conditions. The methodology involves data preprocessing, feature
+engineering, model selection, hyperparameter optimization, and evaluation, following best
+practices reported in recent churn prediction literature (AbdelAziz et al., 2025; Bhuria et al., 2025;
+Patel et al., 2023). This figure describe the entire methodology workflow.
+
+
+
+
+                              Figure 1: Research Methodology Workflow
+7.1. Dataset description
+This study uses the public dataset from Kaggle, which is “Churn Prediction: Unlocking Retention
+Secrets” (Simronw, 2023). The dataset has 5000 rows, and 5000 unique customer IDs. Thus, it is
+one row per customer. It does not contain historical transactions, it contains the latest related
+insights required to understand why customer might leave and how to retain them. There are 26
+variables in this dataset, which are:
+    • One column is customer id
+    • Five categorical columns are customer demographics.
+    • One binary variable indicating if customers churn or not. Additional column indicating
+        the number of months ago if churn happened.
+    • The rest are banking detail e.g. loan information, credit score, transaction info.
+
+   A full description of all variables, including data type, data description and their potential role
+   in churn prediction problem is provided in Appendix A.
+
+7.2. Data Preprocessing
+
+Since the quality and structure of input data have a direct impact on the effectiveness and reliability
+of ML and DL models, data preparation is an essential step in predictive modeling (Patel et al.,
+2023; Adiputra, Wanchai & Lin, 2025). According to previous literature in churn prediction
+research, the data preprocessing should include missing value imputation, categorical encoding,
+feature scaling, class imbalance handling (Bhuria et al., 2025; Adiputra, Wanchai & Lin, 2025).
+
+Missing Data Handling
+
+Missing values data has some impact to final model training. Either it may bias the model or reduce
+the effective sample size. It results in poor predictive reliability (Abbas et al., 2023; Abubakar et
+al., 2024). Thus, it must be handled properly. There are few techniques available in prior works.
+First, mean imputation, median imputation or mode replaces the missing value by mean, median
+or mode of the feature respectively. This technique is computationally simple but highly sensitive
+to outliers. Using it without proper care may distort feature distribution.
+
+Next, regression imputation and multiple imputation by chained equations (MICE) replace missing
+value by an approximately statically estimation. There are some advantages and disadvantages. On
+the good side, they leverage relationships between features which is sometime benefit to the model
+training. On the other hand, they require additional computational resources and often assume
+unnecessary predictor linearity.
+
+Finally, k-nearest neighbour (kNN) replaces missing values by similar samples, which is believed
+to provide more sophisticated result. This inference consumes intensively computational resources
+on large dataset, hence scalability in banking churn prediction may be a full stop.
+The table below summarises common missing value treatment as described above.
+
+                     Table 3: Comparison of Missing Data Imputation Methods
+ Technique        Advantages           Limitations          Computational        Citation
+                                                            Cost
+ Mean             Simple, fast     Distorted             by Very low             Abbas et al.
+ Imputation                        outliers;           weak                      (2023)
+                                   distributional
+                                   fidelity
+ Median        Robust to outliers; May ignore variance Low                       Abbas et al.
+ Imputation    preserves central structure                                       (2023)
+               tendency
+ Mode        / Suitable        for May             inflate Low                   Abubakar     et
+ Unknown       categorical   data; frequency            of                       al. (2024)
+ Class         preserves absence dominant class
+               patterns
+ Regression    Leverages           Assumes linearity; Medium                     Murindanyi et
+ Imputation    relationships       risk of overfitting                           al. (2025)
+               between features
+ MICE          Statistically       Computationally         High                  Domingos,
+ (Multiple     principled; handles expensive; complex                            Ojeme      &
+ Imputation)   uncertainty         to implement                                  Daramola
+                                                                                 (2021)
+ kNN              Adaptive;     uses Scales poorly with High                     Murindanyi et
+ Imputation       neighbourhood      dataset size                                al. (2025)
+                  similarity
+
+This study not only focus on predictive performance but also computational efficiency. Therefore,
+median and mode imputation methods are applied. Numerical features (e.g., balances, transaction
+volumes) will be imputed using the median, which mitigates the impacts of extreme outliers
+compared to mean replacement. Categorical features (e.g., customer demographics) will be
+imputed with the mode or encoded into an explicit “Unknown” class. It preserves missing-data
+patterns as well as maintain feature interpretability. This approach ensures methodological
+consistency with prior banking churn studies (Abbas et al., 2023; Abubakar et al., 2024), while
+avoiding the excessive computational cost of more complex imputation frameworks.
+Categorical Feature Encoding
+
+Both ML and DL algorithms only accept numerical features, therefore it is a mandatory to
+transform all categorical to numerical format. There are a few encoding techniques as described in
+table below.
+
+                                Table 4: Comparison of Encoding Methods
+ Encoding     Problem       Pros                   Cons               Suitability      Citation
+ Method       Addressed
+ Label        Converts      Simple, compact •          Introduces     Useful     for Bhatia et al.
+ Encoding     categories    representation             artificial     tree-based     (2023)
+              into                                     ordinality     models (DT,
+              integers                             •   Misleads       RF, XGBoost)
+                                                       algorithms
+                                                       sensitive to
+                                                       scale
+
+ Target   Encodes           •     Captures       •     Risk     of    Suitable    for Abbas et al.
+ Encoding categories              category–            target         high-           (2023)
+          by       their          target               leakage        cardinality
+          statistical             correlation    •     Requires       categorical
+          relationship      •     Reduces              careful        features
+          to      churn           dimensionality       cross-
+          (e.g., mean                                  validation
+          churn rate)
+ One-Hot Expands            •     Prevents         Increases          Best for low- •       Boozary
+ Encoding categories              artificial       dimensionality     cardinality           (2025)
+          into binary             ordinality       if features have   attributes (e.g., •   AbdelAziz
+          indicator         •     Interpretable    high               demographics)         et     al.
+          variables         •     effective for    cardinalities      in      ML/DL         (2025)
+                                  low-                                models            •   Patel, S.,
+                                  cardinality                                               et     al.
+                                  data                                                      (2024)
+
+
+The dataset includes five categorical demographic attributes, and due to low cardinalities of each
+features, one-hot encoding is particularly suitable method. Low cardinalities also ensure one-hot
+encoding computationally efficient and less prone to sparsity issues compared to high-cardinality
+cases. In addition, it also avoids the risk of introducing misleading ordinal relationships that could
+occur with label encoding, ensuring the encoded features align with the nature of the data
+
+One-hot encoding creates a separate binary feature (0 or 1) for each category level, ensuring that
+ML and DL models can process categorical data without imposing artificial ordinal relationships
+where none exist (Boozary, 2025).
+Formally, for a categorical variable C with k distinct categories {c1, c2, ..., ck}, one-hot encoding
+maps each observation x Î C to a binary vector v Î{0,1} k where:
+
+                                                  1 𝑖𝑓 𝑥 = 𝑐!
+                                        𝑣! = #
+                                                 0 𝑜𝑡ℎ𝑒𝑟𝑤𝑖𝑠𝑒
+
+For example, in dataset, the gender feature has 3 values Male, Female and Other. One-hot encoding
+will represent these as:
+
+                                 Gender     Male     Female     Other
+                                 Male       1        0          0
+                                 Female     0        1          0
+                                 Other      0        0          1
+
+In practice, we do not really need all three columns. Two columns suffice to derive the last columns.
+By removing one column, we also avoid multicollinearity.
+
+The binary churn indicator will be retained in its original 0/1 form, following conventions in prior
+banking churn studies (AbdelAziz et al., 2025).
+
+Feature Scaling
+
+Feature scaling is an important preprocessing step for all binary classification. Especially with
+banking datasets, numerical features (e.g. account balances, transaction volume or transaction
+frequency, tenor) are in various ranges. If this step is not handled properly or frequently overlooked,
+larger numeric scales can dominate distance-based or gradient-based algorithms. As a result,
+algorithms relying on distances or gradient can suffer from slow or unstable training. In the worst
+case, it may also lead to biased learning and unstable convergence (Ali, S., et al., 2025).
+
+Hence, for those predictive algorithms which are sensitive to feature magnitude, it is a mandatory
+requirement to ensure uniform feature contribution. There are standardisation and normalisastion
+scaling methods. Normalisation scale data to a specific range which is between 0 and 1. It can
+distort the underlying data distribution and casually ignore meaningful patterns, especially when
+outliers are present. Standardisation technique rescales feature to have a mean of zero and standard
+deviation of one. It preserves the distribution shape while centering and scaling the data, ensuring
+that no single variable dominates due to its magnitude.
+
+Standardisation is particularly important for gradient-based models such as deep neural networks
+(DNNs), where unscaled features can lead to inefficient convergence (Domingos, Ojeme &
+Daramola, 2021), and for distance-based algorithms, where differences in scale can distort
+similarity measures. Standardisation is mathematically defined as:
+                                                   𝑥− 𝜇
+                                             𝑧=
+                                                    𝜎
+
+where x is the original feature value, 𝜇 is the feature mean, and 𝜎 is the feature standard
+deviation.
+For example, if we have five features x1 to x5, their values vary from 5 to 20, this figure explains
+how standardisation works. The chart on the left plot five features with raw value, and the right
+hand side chart plots their values after standardisation.
+
+
+
+
+                            Figure 2 - Example of Standardisation scaling
+
+Class Imbalance Treatment
+
+For binary classification problem, particularly for churn prediction class imbalance, where one
+class is much of the population, is typical. It results in model biased and reduce sensitivity to true
+churners, which are of highest business concern. For example, if a dataset has 10000 observations,
+and only 2% of them are churn. By predicting all of them are non-churn, the model accuracy is
+98%. Although the predictive accuracy is very high, all churn customers are ignored.
+
+To address this, two different imbalance treatments are applied in this study as described in table
+below
+
+                   Table 5: Comparison of Class Imbalance Treatment Techniques
+                                                                    Resources
+Technique Principle          Strengths           Weaknesses                   Best for      Citation
+                                                                    Cost
+              Creates       •    Reduces        •    May
+              synthetic          overfitting         generate less                          •   Adiputra,
+              minority           from simple         realistic                                  Wanchai &
+              samples by         duplication         samples       Low–         Machine         Lin (2025)
+SMOTE
+              interpolating •    Improves       •    Risk       of Medium       learning    •   Tékouabou
+              between            minority            overlapping                                (2022)
+              existing           representation      classes
+              samples
+                             •   Captures
+                                                 •   Computatio
+          Uses        a          complex
+                                                     nally
+          generator–             feature
+                                                     expensive
+GAN-      discriminator          relationships
+                                                 •   Risk      of                         Adiputra,
+based     framework to •         Generates                                    Deep
+                                                     mode         High                    Wanchai & Lin
+Oversampl produce                highly                                       learning
+                                                     collapse in                          (2025)
+ing       realistic              realistic
+                                                     GAN
+          minority               churner
+                                                     training
+          samples                samples
+
+
+Synthetic Minority Oversampling Technique (SMOTE): SMOTE generates synthetic churn
+samples by interpolating between existing minority class instances. For each minority sample xi,
+one of its k-nearest neighbours xnn is selected, and a new synthetic point xnew is created as:
+
+                            𝑥"#$ = 𝑥! + 𝜆 . (𝑥"" − 𝑥! ) , 𝜆 ~ 𝑈(0,1)
+
+Where:
+
+   •     xi: a randomly chosen minority class sample
+   •     xnn: one of the k-nearest neighbours of xi from the minority class
+   •     𝜆: a random number drawn from a uniform distribution between 0 and 1 (U(0,1))
+   •     xnew: the newly generated synthetic sample
+
+This interpolation along the feature space line segment between xi and xnn avoids direct duplication
+while enriching the minority class distribution. Studies (Adiputra, Wanchai & Lin, 2025;
+Tékouabou, 2022) confirm that SMOTE improves sensitivity to churners while reducing
+overfitting risks associated with random oversampling.
+
+GAN-based Oversampling: Generative Adversarial Networks (GANs) offer a more sophisticated
+approach by learning the underlying data distribution of the minority class. A GAN consists of two
+neural networks: the generator G(z), which maps random noise z ~ p(z) to synthetic samples, and
+the discriminator D(x), which attempts to distinguish real from synthetic samples.
+
+Through this min–max optimisation, G learns to generate synthetic churner samples
+indistinguishable from real ones, thereby capturing high-order correlations and producing more
+realistic minority examples. GAN-based oversampling has been shown to outperform
+interpolation-based methods in datasets with complex feature relationships (Adiputra, Wanchai &
+Lin, 2025).
+7.3. Feature Engineering
+
+During exploratory data analysis process new features may be derived to capture hidden customer
+behavior leading to churn signals. There is a clear proof from prior literature that those derived
+features improving discriminative power in churn models by revealing patterns not directly
+observable in the raw data (Singh, H., et al., 2024; Abbas et al., 2023). According to previous
+studies and banking domain expertise, five groups of derived features are proposed (a full summary
+of derived features is provided in appendix B).
+
+   a. Tenure-related features. The customer’s tenure, also known as month-on-book (MOB),
+      is the month difference between account opening date and current data date. This feature
+      provides a strong indicator of customer loyalty. A short tenure customers tend to be more
+      volatile while longer tenure customers are more likely loyal (AbdelAziz et al., 2025).
+      Similarly, the inactivity period, measured as the number of days since the last transaction,
+      is another indicator for exiting, as longer inactivity period are strongly correlated with
+      churn (Ahmed et al., 2023).
+   b. Transaction-based features. Metrics such as transaction frequency (number of
+      transactions normalised by tenure), and average transaction size provide insights into how
+      actively a customer uses their account. A balance volatility index, calculated as the absolute
+      change in balance relative to the current balance, reflects financial instability and has been
+      associated with higher churn tendencies.
+   c. Financial health indicators. A loan-to-income ratio will be engineered to assess leverage
+      risk, complementing credit score information. Customers with higher ratios may face
+      repayment stress, which increases the likelihood of discontinuing banking relationships.
+   d. Service and satisfaction related. A complaint-to-interaction ratio captures the density of
+      dissatisfaction signals by dividing recent complaints by total customer service interactions.
+      This is complemented by a satisfaction gap indicator, combining customer satisfaction
+      score and complaints: low satisfaction combined with frequent complaints is a strong churn
+      predictor, while high satisfaction and no complaints indicate stability.
+   e. Contextual features such as branch or region-level churn rates (derived from the training
+      data) will be encoded as risk-based features, as certain regions or branches may consistently
+      show higher attrition. A composite engagement index, integrating transaction frequency,
+      satisfaction, and complaint ratios, will also be constructed to provide a holistic measure of
+      customer commitment.
+
+Completion of data preprocessing and feature engineering, the dataset will be ready and optimised
+for both ML and DL models. Those two steps ensure selected model evaluation exposes actual
+algorithm capability rather than data quality or representation.
+7.4. Train–Test Split and Validation
+
+Random sampling is usually preferred for train-test split. Each observation is assigned randomly
+to each train and test set. It ignores class contribution so it may produce improper split where minor
+class is under-sampling or even absent. Models trained on such split may underperform in churn
+prediction. Therefore, according to Ahmed et al., (2023) and Patel et al., (2023), to deal with such
+imbalance class problem the churn/non-churn ratio preservation is a mandatory. Instead of random
+sampling, stratified sampling should be employed to split training (80%) and testing (20%) subsets.
+Stratification guarantees that both subsets reflect the same class distribution as the original dataset,
+which is critical for imbalanced problems such as churn prediction.
+
+Moreover, as another recommendation by Marmion et al., (2012), k-fold cross validation will be
+applied during model training to limit overfitting and reduce variance in final prediction. The train
+dataset is equally split further down by k folds, and the model is trained k times. Each time, it
+leaves one fold out for validation and uses remaining folds for training. The final performance
+estimation is computed as the average across all k runs. Formally, if D is the training dataset and
+F1, F2, ..., Fk are the folds, the model is trained k times on all folds except Fi and validated on Fi.
+This approach is also useful of limited data.
+
+For example, if we choose k equal to 5, this figure demonstrate how k-fold validation works.
+
+
+
+
+                     Figure 3 - Demonstration of stratified k-Fold Cross-Validation
+7.5. Algorithms Considered
+
+There are two objectives behind the model selection in this study:
+
+   •   Ensuring covering of various linear classifiers, decision-tree-based ensembles, and non-
+       linear representation algorithms.
+   •   Enabling a balanced comparison between ML and DL approaches using consistent
+       preprocessing and evaluation pipelines.
+
+This ensures the experimental outcomes are both statistically rigorous and operationally
+meaningful in a banking context.
+
+Comparative Perspective (ML vs. DL in the four-core metrics)
+
+Evaluation metrics will be discussed furtherly in the evaluation metric part in this section. Evidence
+from the reviewed literature consistently reveals complementary strengths between ML and DL in
+banking churn prediction:
+
+                               Table 6: Model performance comparison
+ Metric       Best-performing          Best-performing Observed trends in banking churn
+              ML models                DL models         prediction
+ Accuracy     XGBoost,                 Deep       Neural • Ensembles often lead due to bias–
+              Random Forest            Network (tuned)      variance optimisation
+                                                         • DNN can match with careful tuning.
+
+ Precision    Random        Forest, Artificial     Neural •     ML ensembles typically produce
+              Logistic Regression Network                       fewer false positives
+                                                            •   ANN can offer competitive
+                                                                precision with feature scaling.
+
+ Recall       XGBoost                  Deep        Neural •     DNN often excels in recall,
+              (with rebalancing)       Network                  especially with dropout and class
+                                                                weighting
+                                                            •   Important for catching true
+                                                                churners.
+
+ F1-score     XGBoost                  Deep        Neural •     Context-dependent:         boosting
+                                       Network                  models lead on clean, separable data
+                                                            •   DNN can surpass with complex
+                                                                feature interactions.
+
+ Execution Logistic Regression, Artificial         Neural •     Simpler models faster
+ time      Decision Tree        Network                     •   ANN reasonable latency
+This comparative evidence motivates the inclusion of models that mutually span the metric range:
+ensembles (RF, XGBoost) for accuracy and precision, and DL models (DNN, ANN) for recall and
+balanced F1 performance. Logistic Regression and Decision Trees serve as low-latency baselines
+and interpretable respectively, enabling a full assessment of performance versus execution time.
+
+Machine Learning Models
+
+   •   Logistic Regression (LR). A linear probabilistic classifier that models the log-odds of
+       churn as a function of customer attributes. LR remains a robust baseline in banking churn
+       research due to its transparency, calibration friendliness, and low computational cost
+       (Abbas et al., 2023; AbdelAziz et al., 2025; Patel et al., 2024).
+   •   Decision Tree (DT). A hierarchical partitioning of the feature space that yields
+       human-readable rules and very fast inference. While single trees often trail ensembles in
+       raw accuracy, their latency and interpretability are attractive for real-time scoring and
+       compliance-centric environments (Bhuria et al., 2025; Tékouabou, 2022).
+   •   Random Forest (RF). An ensemble of decorrelated trees trained via bagging and random
+       feature selection. Therefore, RF typically improves generalisation and stability relative to
+       a single DT. On the other hand, RF requires way more computational resources and so
+       longer execution time than DT. Since this study also values execution time and
+       computational resources, DT and RF are evaluated head-to-head to consider the trade-off
+       between those execution time and predictive performance (Bhuria et al., 2025; Singh, P.,
+       et al., 2025).
+   •   XGBoost. Sequential ensembles that correct residual errors of prior learners and
+       incorporate regularisation; they have repeatedly achieved state-of-the-art results on
+       structured banking data, especially when hyperparameters are tuned systematically (Patel
+       et al., 2023; Ali, M., et al., 2024; AbdelAziz et al., 2025; Li, X., et al., 2025). In previous
+       literature as summarized in table above, XGBoost beats all other three machine learning
+       model in term of accuracy, recall and F1-score. Like RF, this model also requires more
+       computational cost. It is also good to consider the trade-off between predictive performance
+       and computational cost.
+
+Deep Learning Models
+
+   •   Artificial Neural Network (ANN): Feed-forward multi-layer perceptions modelling non-
+       linear relationships between demographic, behavioural, and transactional features and
+       churn likelihood. Typical configurations in banking churn tasks include 1–2 hidden layers
+       with ReLU activation, dropout for regularisation, and a sigmoid output neuron for binary
+       classification (AbdelAziz et al., 2025; Adamu et al., 2025). Like LR in machine learning
+       model, this algorithm acts as baseline in churn prediction for deep learning.
+   •   Deep Neural Network (DNN): Extends the ANN by incorporating additional hidden layers
+       (e.g., 4–6) to capture higher-order feature interactions in high-dimensional data. Common
+       designs employ dense layers with ReLU activation, batch normalisation to stabilise
+       training, dropout to mitigate overfitting, and a sigmoid output layer (Singh, H., et al., 2024;
+       Basit et al., 2024). Because of complex architecture, DNN wins most predictive
+       performance, yet it consumes more resources. In term of trade-off consideration, both DNN
+       and ANN are put on the table for consideration.
+7.6. Hyperparameter Optimisation
+
+In all predictive algorithms, there are two types of parameters. First, it is model parameters such as
+regression coefficients or neural network weights learning and updating during the training using
+data. The other is model hyperparameters controlling learning process itself rather than learning
+from data. Some examples include the regularisation strength (e.g., L1 or L2 penalty) for logistic
+regression or maximum tree depth, minimum samples per split for decision tree. They are set prior
+to training and directly influence model capacity, convergence behaviour, and generalisation ability
+(Patel et al., 2023; Abubakar et al., 2024).
+
+Machine Learning Models
+
+Previous literatures believe the importance of hyperparameter tuning for maximizing the predictive
+performance of both ML and DL models. In contrast, deficient configurations can lead to either
+underfitting or overfitting. This study applies comparative approach using grid search, random
+search, and Optuna.
+
+   •   Grid Search: This method brute forces all possible combinations of predefined
+       hyperparameters. By covering all possibilities, it can determine the best hyperparameter
+       combination. Once the parameter space grows, the good application becomes
+       computational burden (Abubakar et al., 2024). For example, tuning three parameters with
+       ten candidate values each, formally ten power of three, already requires 1,000 model fits,
+       making grid search infeasible for complex DL architectures.
+   •   Random Search: Instead of testing all combinations, random search randomly selects
+       some of hyperparameter configurations. Obviously, it performs faster than grid search and
+       reduces computational resources. Nonetheless, it may still spend trials on nonpotential
+       regions of parameter spaces and lacks adaptive exploration (Abubakar et al., 2024) or it
+       may miss the best combination.
+   •   Optuna: A modern hyperparameter optimization framework that improves on both
+       methods by employing Bayesian optimization and early pruning strategies (Patel et al.,
+       2023). Bayesian optimization uses probabilistic models to guide the search towards
+       potential regions of the parameter space. On the other hand, pruning stops disappointing
+       trials early, reallocate resources to more potential candidates. This combination returns
+       greater efficiency in exploring complex search spaces, particularly for deep neural networks
+       where training iterations are computationally expensive.
+
+   Table 7: Comparison of Hyperparameter Optimisation Approaches for Machine Learning Models
+ Approach      Description              Strengths             Weaknesses         Relevant
+                                                                                 Studies
+ Grid          Exhaustively          Simple          to Computationally          Abubakar
+ Search        evaluates         all implement;         expensive; infeasible et         al.
+               parameter             guarantees finding for large search spaces. (2024)
+               combinations within a best model within
+               predefined grid.      the grid.
+ Random      Samples parameter      More efficient than       May miss optimal       Patel et al.
+ Search      values     randomly    grid search in high-      combinations if not    (2023);
+             from         defined   dimensional spaces;       sampled; results can   Abubakar et
+             distributions.         can     reach     near-   vary by run.           al. (2024)
+                                    optimal         results
+                                    quickly.
+ Optuna      Uses      Bayesian     Highly efficient in       More        complex Patel et al.
+             optimisation and       large,        complex     implementation;      (2023)
+             pruning to guide       spaces;       adaptive    requires tuning of
+             search      toward     search; early stopping    optimisation process
+             promising regions.     of poor trials saves      itself.
+                                    computation.
+
+In conclusion, logically Optuna beats Grid Search and Random Search not only in term of
+computational resources but also achieving higher chance of finding near optimal. By applying all
+three approaches and comparing each approach’s peak performance with base models and them
+together, the study seeks the solid proof for the best tuning platform.
+
+Deep Learning Models
+
+In contrast, DL models in this study will not undergo full hyperparameter tuning process. Due to
+deep learning complex architectures, hyperparameter tuning requires extremely high
+computational resources. Their hyperparameters such as number of hidden layers, activation
+functions, dropout, batch size, learning rate will be set using configurations established in prior
+churn prediction studies (Amal et al., 2023; Ahmed et al., 2023; Zhang et al., 2024). This reflects
+two concerns:
+
+   •   Because the study dataset is quite small (5000 observations) and it may limit the extensive
+       hyperparameter tuning benefit. Any overly complex tuning may risk to overfitting.
+   •   Full hyperparameter tuning is computationally expensive and beyond the practical scope
+       of this study, as the scop
+
+By adopting configurations from previous literature, DL models are not left untuned but are setup
+using empirically validated settings. This ensures methodological fairness, ML models are fully
+tuned with Grid Search, Random Search, and Optuna, while DL models are reasonably
+configured to reflect their potential under realistic study constraints.
+7.7. Evaluation Metrics
+
+Besides four widely used metrics in the binary classification problem (Adiputra, Wanchai & Lin,
+2025; Bhuria et al., 2025), the study will also consider two extra metrics, which are AUC (Ahmed
+et al., 2023; Patel et al., 2023) and execution time (Bhuria et al., 2025; Domingos, Ojeme &
+Daramola, 2021).
+
+This below figure denotes some formulas below (Tharwat 2018):
+
+
+
+
+                                    Figure 4: Confusion matrix
+
+
+           •   TP is true positive; a churn customer is predicted to churn correctly.
+           •   TN is true negative; a non-churn customer is predicted to be a non-churn customer
+               correctly.
+           •   FP is false positive; a non-churn customer is predicted to churn incorrectly.
+           •   FN is false negative; a churn customer is predicted to be a non-churn incorrectly.
+
+   a. Accuracy is a metric that quantifies how often a model's predictions are correct. The term
+      “correct” here refers to accurate classification of both churn and non-churn classes. It is a
+      good starting point for evaluating model performance because it is simple to understand
+      and calculate, making it a good initial measure of how well the model is performing.
+
+                               𝑁𝑢𝑚𝑏𝑒𝑟 𝑜𝑓 𝑐𝑜𝑟𝑟𝑒𝑐𝑡 𝑝𝑟𝑒𝑑𝑖𝑐𝑡𝑖𝑜𝑛        𝑇𝑃 + 𝑇𝑁
+                𝐴𝑐𝑐𝑢𝑟𝑎𝑐𝑦 =                                  =
+                               𝑇𝑜𝑡𝑎𝑙 𝑛𝑢𝑚𝑏𝑒𝑟 𝑜𝑓 𝑝𝑟𝑒𝑑𝑖𝑐𝑡𝑖𝑜𝑛𝑠    𝑇𝑃 + 𝑇𝑁 + 𝐹𝑃 + 𝐹𝑁
+
+       However, the metric itself is sometimes interpreted wrongly especially for high imbalance
+       class prediction. By predicting all records are majority class, the model achieves high
+       accuracy score, but it fails to reflex the real situation. Therefore, additional metrics are used
+       alongside the evaluation to make it clearer.
+
+   b. Precision is a metric that measures the accuracy of positive predictions produced by a
+      model. In another word, precision is the proportion of correctly predicted positives out of
+      all instances predicted as positive. This metric indicates the proportion of actual positives
+      among those predicted as positive by the model. Precision is used to evaluate the reliability
+   of a model's positive predictions and can be particularly useful in situations where false
+   positives may have a significant impact. For example, in customer retention scenarios,
+   banks may offer promotions; a higher number of false positives may result in increased
+   costs for the bank.
+
+                                                   𝑇𝑃
+                                  𝑃𝑟𝑒𝑐𝑖𝑠𝑖𝑜𝑛 =
+                                                 𝑇𝑃 + 𝐹𝑃
+
+
+c. Recall, also known as true positive rate (TPR) or sensitivity, quantifies a model’s ability to
+   identify relevant instances (true positives) within a dataset. It represents the proportion of
+   actual positive cases correctly detected by the model, indicating the fraction of positives
+   found among all actual positives.
+
+                                                 𝑇𝑃
+                                    𝑅𝑒𝑐𝑎𝑙𝑙 =
+                                               𝑇𝑃 + 𝐹𝑁
+
+   Recall is given particular emphasis in banking churn contexts, as failing to identify an at-
+   risk customer may result in direct revenue loss (Tékouabou, 2022; Adiputra, Wanchai &
+   Lin, 2025). While precision focuses on the accuracy of positive predictions, recall focuses
+   on identifying all positives. A high recall can sometimes come at the cost of lower precision
+   (more false positives), and vice versa. The relationship between precision and recall is often
+   described as a trade-off.
+
+d. F1-score provides a balanced measure of a model's performance in classification tasks,
+   particularly useful when dealing with imbalanced datasets. It is the harmonic mean of
+   precision and recall, offering a single value that considers both false positives and false
+   negatives:
+
+                                          𝑃𝑟𝑒𝑐𝑖𝑠𝑖𝑜𝑛 𝑥 𝑅𝑒𝑐𝑎𝑙𝑙
+                               𝐹1 = 2 𝑥
+                                          𝑃𝑟𝑒𝑐𝑖𝑠𝑖𝑜𝑛 + 𝑅𝑒𝑐𝑎𝑙𝑙
+
+   The F1-score provides a single, comparable metric for evaluating and comparing the
+   performance of different machine learning models, especially when precision and recall are
+   both important. A high F1-score (close to 1) signifies that the model has outstanding
+   precision and recall, meaning it is effective at both identifying positive cases and
+   minimizing incorrect positive predictions. A low F1-score (close to 0) indicates that the
+   model is either not identifying enough positive cases (low recall) or is making too many
+   incorrect positive predictions (low precision), or both. In banking, either failing to retain a
+   valuable customer or offering unnecessary incentives entail substantial cost.
+
+e. Area Under the Receiver Operating Characteristic Curve (AUC-ROC): a threshold-
+   independent measure representing the probability that the model ranks a randomly chosen
+   churner higher than a randomly chosen non-churner. The ROC curve plots the true positive
+   rate (recall) against the false positive rate at various classification thresholds, and the AUC
+   quantifies the overall separability. In general classification problems, higher AUC values
+   indicate better discrimination between classes. In churn prediction, AUC is especially
+   valuable because it evaluates performance across all possible thresholds, helping
+   practitioners select the most appropriate operational cut-off point for intervention strategies
+   (Ahmed et al., 2023; Patel et al., 2023).
+f. Execution Time measured in seconds or milliseconds per inference or training epoch,
+   depending on model type. It captures computational efficiency during both training and
+   prediction phases. Built-in profiling tools provide precise measurement of both CPU and
+   GPU operations. Execution time will be calculated by time differences between wall-
+   clock time at beginning and end of each training run or predicting. To be fair, time both
+   training and predicting time execution will be normalized to per-epoch or per-sample
+
+                        𝑒𝑛𝑑𝑡𝑖𝑚𝑒 − 𝑠𝑡𝑎𝑟𝑡𝑖𝑚𝑒                              𝑒𝑛𝑑𝑡𝑖𝑚𝑒 − 𝑠𝑡𝑎𝑟𝑡𝑖𝑚𝑒
+          𝑇𝑟𝑎𝑖𝑛%!&# =                                     𝑃𝑟𝑒𝑑%!&# =
+                           𝑡𝑟𝑎𝑖𝑛𝑖𝑛𝑔 𝑠𝑒𝑡                                   𝑝𝑟𝑒𝑑𝑖𝑐𝑡𝑖𝑛𝑔 𝑠𝑒𝑡
+
+
+                Table 8: Runtime Benchmarking Protocol for Execution Time
+Aspect      Description
+            • For ML models: use high-resolution wall-clock timers (e.g., Python
+               time.perf_counter()).
+Measurement • For DL models running on GPU: use CUDA synchronizers
+primitives     (torch.cuda.synchronize()) to account for asynchronous kernel
+               execution.
+
+                 •   Perform 1–3 warm-up runs to populate caches and JIT compile graphs.
+                 •   Execute 10 independent timed runs.
+Warm-up &
+repetitions      •   Report median (p50) and optionally p90 latency.
+                 •   Outliers are logged and reported separately.
+
+                 •   Training: fit() call (ML) or forward+backward passes (DL).
+What is          •   Inference: predict() (ML) or forward pass (DL).
+timed            •   Include preprocessing/transform steps required inside pipeline.
+
+                 •   Disk I/O, dataset loading, or caching operations.
+What is not      •   One-off model/graph compilation (outside warm-up).
+timed            •   Hyperparameter search orchestration overhead.
+
+                 •   Record CPU/GPU model, RAM, and storage configuration.
+Hardware         •   Note whether execution uses single-thread, multi-thread, or GPU
+specification        acceleration.
+
+                 •   Report latency for single-sample (online scoring) and batch (mini-
+Batch size &         batch) inference.
+concurrency      •   Vary concurrency levels (1, 4, 8 workers) to simulate deployment load.
+
+                 •   Present results in milliseconds per inference (prediction) and seconds
+                     per epoch (training).
+Reporting
+                 •   Provide confidence intervals (95%) to demonstrate stability of results.
+   While more complex architectures (e.g., deep neural networks) may deliver marginal
+   returns in predictive metrics, they often incur substantial delays in prediction speed and
+   higher hardware costs. In churn prediction, where timeliness can influence retention
+   intervention strategies, execution time becomes a crucial operational metric.
+       • Fast models (e.g., Logistic Regression, Decision Tree) can be deployed easily and
+           score lower in complexity but may sacrifice some accuracy.
+       • The inclusion of execution time allows decision-makers to balance predictive power
+           with operational feasibility.
+
+g. Evaluation Metrics and Statistical Significance: a model with higher raw metrics
+   (accuracy, precision, recall, F1, execution time) is an efficient requirements to claim this
+   model outperform other models. Statistical significance testing helps to ensure the
+   evaluation is sufficiently rigorous to conclude that higher performance does not happen
+   by chance or by sampling. The table below describes how each five above evaluation
+   metrics are statistically tested.
+
+        Table 9: Evaluation Metrics and Statistical Significance using Cross Validation
+                                      How It is Compared (with
+ Metric        Definition                                                Ensuring Robustness
+                                      CV)
+                                                                         Apply paired tests
+                                      •   Compute fold-level
+                                                                         (paired t-test or
+                                          accuracy in repeated
+                                                                         Wilcoxon signed-rank)
+               Ratio of correctly         stratified k-fold CV
+                                                                         or bootstrap 95%
+ Accuracy      classified cases       •   Use the distribution of        confidence intervals to
+               over total cases.          scores across folds to
+                                                                         assess statistical
+                                          compare models.                significance (Marmion
+                                                                         et al., 2012).
+                                      •   Compute fold-level
+                                          precision in repeated          Same significance logic
+               Fraction of
+                                          stratified k-fold CV           as accuracy: paired tests
+               predicted churners
+ Precision
+               that are actual        •   Use the distribution of        or bootstrap 95% CIs
+                                          scores across folds to         ensure results are not
+               churners.
+                                          compare models.                due to chance.
+
+                                      •   Compute fold-level recall
+               Fraction of actual                                        Same significance logic
+                                          in repeated stratified k-
+               churners correctly                                        as accuracy: paired tests
+                                          fold CV
+               identified                                                or bootstrap 95% CIs
+ Recall
+               (especially            •   Use the distribution of        validate recall
+                                          scores across folds to
+               important in churn                                        improvements across
+               contex.                    compare models.                models.
+                                   •   Compute fold-level F1
+                                       values in repeated           Same significance logic
+                                       stratified k-fold CV         as accuracy: paired tests
+            Harmonic mean of
+            precision and recall. •
+F1-score                               Use the distribution of      or bootstrap 95% CIs
+                                       scores across folds to       ensure F1 differences
+                                       compare models.              are robust.
+
+                                   •   Measure                      Apply non-parametric
+          Time for training
+                                       training/inference time      tests (e.g., Kruskal–
+Execution and inference (as
+                                       within each CV fold          Wallis) if execution
+Time      per benchmarking
+                                       (median and p90 latency).    time distributions are
+          protocol).
+                                                                    skewed.
+
+
+
+
+           Figure 5: Workflow of Statistical Significance Test
+
+ All classification metrics (accuracy, precision, recall, and F1) are fractions derived from
+ the same confusion matrix and evaluated identically across repeated stratified k-fold CV.
+ By treating the fold-level values as samples from the performance distribution, it is
+ methodologically consistent to apply a unified statistical framework either paired tests or
+ bootstrap confidence intervals to compare models. Although these metrics are fraction-
+ based and could in principle be tested with a binomial distribution. This overlooks the more
+ relevant question of whether performance differences are consistent across folds. Fold-level
+ tests or confidence intervals are therefore preferred, as they capture both model stability
+ and generalisation variance. Execution time is treated separately because it is a skewed,
+ continuous variable, for which non-parametric tests such as Kruskal–Wallis or Mann–
+ Whitney is more appropriate.
+7.8. Interpretability Analysis
+
+As described in objective section, beside quantitative evaluation metrics, model interpretability is
+another key component of the analysis phase. In the banking industry, the ability to explain
+predictions is critical not only for business stake holders such as compliance, risk management,
+and but also is crucial for gaining executives trust (Boozary, 2025). Well performance model,
+which fails to explain their predictions, are inappropriate for customer-facing decision systems
+deployment. Because those decision may directly result in poor customer retention strategies.
+
+This research will employ SHapley Additive exPlanations (SHAP) to provide a unified, model-
+agnostic approach to interpreting feature contributions. SHAP is built in cooperative game theory.
+Each feature contribution is computed as the average marginal contribution across all possible
+feature subsets. There are two main advantages of this approach. First, it generates overall
+explanations, which highlight features having most impact in churn prediction across entire dataset.
+Second, it also explains in detail why a specific customer is classified as likely to churn (AbdelAziz
+et al., 2025).
+
+For tree-based models (e.g., Random Forest, Gradient Boosted Trees, XGBoost), TreeSHAP will
+be used to optimize computational efficiency. For deep learning models, KernelSHAP will
+approximate Shapley values via sampling, ensuring interpretability remains feasible despite higher
+model complexity (Domingos, Ojeme & Daramola, 2021).
+
+The interpretability results will serve three purposes:
+
+   a. Feature importance validation involves cross-checking whether the highly weighted
+      features correspond with domain expertise and existing banking literature.
+   b. Model debugging contains identifying whether specific features are introducing bias or
+      creating false correlations.
+   c. Actionable insights: to guide retention strategies by revealing key behavioral or
+      demographic drivers of churn.
+
+By integrating SHAP analysis into the evaluation pipeline, the study will bridge the gap between
+predictive accuracy and actionable decision-making, ensuring that model outputs are not only
+correct but also transparent and trustworthy.
+8. REQUIRED RESOURCES
+
+  •     Hardware: a cloud-based environment with GPU acceleration. Minimum specification is
+        16 GB RAM, SSD storage to enable fast data processing and NVIDIA CUDA-enabled GPU
+        for deep learning model training.
+  •     Software: Python 3.10 with machine learning libraries such as Scikit-learn, TensorFlow,
+        PyTorch, profiling tools, and interpretability frameworks (SHAP, LIME). All analytics are
+        done on IDE Jupyter Notebook.
+  •     Dataset: Kaggle Churn The prediction dataset (Simronw, 2023) described earlier in the
+        scope of the study and methodology section.
+  •     Reference management tool: Mendeley.
+
+
+9. RESEARCH PLAN
+
+
+
+
+                                     Figure 6 - Research plan
+
+                              Table 10: Table of Detail Research Plan
+                                                                         Contingency         Percentage
+Phase            Duration Activities                      Risk
+                                                                         Plans               Completed
+                             Systematic review of                        Use alternative
+                             scholarly work on churn      Limited        databases (Google
+                             prediction, imbalanced       access to      Scholar,
+Literature       Weeks
+                             learning (SMOTE,             high-quality   ResearchGate)       100%
+Review           1–4
+                             GAN), and                    articles or    and request
+                             interpretability methods     databases.     institutional
+                             (SHAP, LIME).                               library support.
+                             Define research problem,                    Generate
+                             collect/preprocess           Dataset        synthetic data,     40% done
+Problem
+                             datasets, perform            imbalance      adjust              (done the
+Refinement       Weeks
+                             exploratory data             persists or    preprocessing       research
+& Dataset        5–6
+                             analysis, apply              poor data      techniques, and     problem
+Preparation
+                             preliminary                  quality.       refine feature      definition)
+                             oversampling.                               selection.
+                            Implement baseline ML       High           Utilise cloud-
+                            models (LR, DT, RF,         computation    based GPUs or
+Model             Weeks
+                            GBM) and advanced DL        al load        scale down model      0%
+Development       7–10
+                            models; integrate GAN-      causing        complexity
+                            based oversampling.         delays.        temporarily.
+                                                                       Incorporate multi-
+                            Evaluate models with
+                                                        Conflicting    metric analysis
+                            metrics (precision, recall,
+Model             Weeks                                 metric         and consult
+                            F1, AUC, execution                                               0%
+Evaluation        11–13                                 outcomes       domain experts to
+                            time); compare
+                                                        may emerge. refine evaluation
+                            oversampling impacts.
+                                                                       criteria.
+                                                                       Use alternative
+                                                        Interpretabili
+                            Apply SHAP and LIME                        interpretability
+                                                        ty results are
+Interpretabilit   Weeks     to evaluate transparency                   tools (e.g., PDP,
+                                                        inconclusive                         0%
+y Analysis        14–16     and interpret model                        ALE) and provide
+                                                        or difficult
+                            decisions.                                 qualitative
+                                                        to explain.
+                                                                       explanation.
+                                                                       Switch to
+                            Review computational        Unexpected
+Resource &                                                             institutional HPC
+                            requirements, identify      hardware/sof
+Constraint        Week 17                                              resources or          0%
+                            bottlenecks, refine         tware
+Review                                                                 optimise code
+                            experimental design.        limitations.
+                                                                       efficiency.
+                                                        Time
+                                                                       Begin drafting
+                            Compile findings,           constraints
+Documentati                                                            earlier in parallel
+                  Weeks     structure report, discuss   leading to
+on & Report                                                            with experiments      0%
+                  18–20     implications, limitations, incomplete
+Writing                                                                and allocate extra
+                            and future work.            documentati
+                                                                       time for revision.
+                                                        on.
+10.LIMITATIONS
+
+This study acknowledges several methodological limitations, each of which has been considered
+carefully yet excluded from scope due to practical constraints.
+
+   a. Hyperparameter tuning for deep learning models
+
+       While machine learning models (LR, DT, RF, XGBoost) will undergo systematic
+       hyperparameter optimisation using Grid Search, Random Search, and Optuna, deep
+       learning models (ANN, DNN) will not be fully tuned. This design decision rests on three
+       considerations:
+
+           o The dataset is relatively small (5,000 observations), which limits the marginal
+             benefit of extensive hyperparameter search; overly complex tuning risks overfitting.
+           o Full hyperparameter tuning for DL is computationally expensive, requiring
+             hardware and time resources beyond the practical scope of this research.
+           o Prior churn prediction studies provide empirically validated DL configurations that
+             can be reasonably applied without exhaustive search (Amal et al., 2023; Ahmed et
+             al., 2023; Zhang et al., 2024).
+
+       Consequently, DL models are included as fair, literature-informed benchmarks rather than
+       fully optimised candidates.
+
+   b. Scope of architectures
+
+       Only baseline ANN and DNN are considered. More advanced deep learning architectures
+       (e.g., CNNs, LSTMs, hybrid networks) are excluded, again due to computational
+       constraints and dataset size limitations. Their exclusion narrows generalizability but
+       ensures feasibility within a master’s-level research.
+
+   c. Dataset coverage
+
+       The dataset is cross-sectional (5,000 customers, one row per customer) and lacks historical
+       transactional sequences. As such, the study cannot evaluate time-series models or capture
+       longitudinal churn behaviours. This limits the temporal dimension of churn prediction but
+       reflects the constraints of the chosen data source.
+
+   d. Generalisability
+
+       Results will be specific to the Kaggle dataset used. While the methodology is transferable,
+       absolute performance levels may differ in proprietary banking datasets with richer features
+       or larger sample sizes.
+
+These limitations are explicitly recognised as design trade-offs: the study prioritises
+methodological clarity, computational feasibility, and fairness over exhaustive model exploration.
+Future research should extend hyperparameter optimisation to deep learning architectures,
+incorporate temporal datasets, and evaluate a wider range of neural models under larger-scale
+conditions.
+
+
+REFERENCES
+
+Journal Articles
+
+   •   Abbas, S.M., et al. (2023) Investigating customer churn in banking: A machine learning
+       perspective. Computers & Security, 123, 103041. Available at:
+       https://doi.org/10.1016/j.cose.2023.103041 (Accessed: 03 August 2025).
+   •   AbdelAziz, A., Bekheet, K., Salah, A., El-Saber, H. and AbdelMoneim, M. (2025) A
+       comprehensive evaluation of machine learning and deep learning models for churn
+       prediction. Information, 16(7), 537. Available at: https://doi.org/10.3390/info16070537
+       (Accessed: 20 August 2025).
+   •   Abubakar, I., Ojo, J. and Bello, M. (2024) Improving churn detection in the banking
+       sector: A machine learning approach with probability calibration techniques. Electronics,
+       13(22), 4527. Available at: https://doi.org/10.3390/electronics13224527 (Accessed: 13
+       August 2025).
+   •   Adamu, H., et al. (2025) Customer churn prediction in banking sectors using a
+       hyperparameter-tuned deep learning model. Journal of Information Systems Engineering
+       & Management, 10(31s), 5211. Available at: https://doi.org/10.52783/jisem.v10i31s.5211
+       (Accessed: 07 August 2025).
+   •   Ahmed, M., et al. (2023) Customer churn prediction using composite deep learning
+       technique. Scientific Reports, 13(1), 44396. Available at: https://doi.org/10.1038/s41598-
+       023-44396 (Accessed: 13 August 2025).
+   •   Adiputra, I.N.M., Wanchai, P. and Lin, P.-C. (2025) Optimized customer churn prediction
+       using tabular generative adversarial network (GAN)-based hybrid sampling method and
+       cost-sensitive learning. PeerJ Computer Science, 11, e2949. Available at:
+       https://doi.org/10.7717/peerj-cs.2949 (Accessed: 14 August 2025).
+   •   Domingos, E., Ojeme, B. and Daramola, O. (2021) Experimental analysis of
+       hyperparameters for deep learning-based churn prediction in the banking sector.
+       Computation, 9(3), 34. Available at: https://doi.org/10.3390/computation9030034
+       (Accessed: 04 August 2025).
+   •   Basit, A., Sheikh, S., Umer, M. and Syed, A. (2024) Comparative analysis of deep
+       learning architectures for customer churn prediction in the banking sector. Journal of
+       Computers and Intelligent Systems. (In press).
+   •   Bhuria, R., et al. (2025) Ensemble-based customer churn prediction in banking: A voting
+       classifier approach. Sustainable Computing: Informatics and Systems. (In press).
+   •   Boozary, P. (2025) Enhancing customer retention with machine learning: Ensemble
+       approaches. Journal of Retail Analytics. (In press).
+   •   Eom, G. and Byeon, H. (2023) Searching for optimal oversampling to process imbalanced
+       data: GAN and SMOTE. Mathematics, 11(16), 3605. Available at:
+       https://doi.org/10.3390/math11163605 (Accessed: 04 August 2025).
+   •   Li, X., et al. (2025a) Prediction of bank credit customer churn based on sampling and ML
+       integration. AIMS Mathematics. (In press).
+  •     Li, X., et al. (2025b) Prediction of bank credit customers churn based on ML and
+        interpretability. Data Science in Finance & Economics, 5(1), 1–20. Available at:
+        https://doi.org/10.3934/DSFE.2025002 (Accessed: 08 August 2025).
+  •     Marmion, E.A., Parry, M.A., Stott, A.E.N. and Cornford, T.J.W. (2012) Comparing
+        machine learning classifiers in potential distribution modelling. Expert Systems with
+        Applications, 39(8), 8083–8093. Available at: https://doi.org/10.1016/j.eswa.2010.12.016
+        (Accessed: 08 August 2025).
+  •     Sezer, O.B., Gudelek, M.U. and Ozbayoglu, A.M. (2018) Deep learning with LSTM
+        networks for financial market predictions. European Journal of Operational Research,
+        270(2), 654–669. Available at: https://doi.org/10.1016/j.ejor.2017.11.054 (Accessed: 14
+        August 2025).
+  •     Sezer, O.B., Gudelek, M.U. and Ozbayoglu, A.M. (2020) Financial time series forecasting
+        with deep learning: A systematic literature review. Applied Soft Computing, 90, 106181.
+        Available at: https://doi.org/10.1016/j.asoc.2020.106181 (Accessed: 04 August 2025).
+  •     Singh, A., et al. (2024) Enhancing customer churn analysis by using real churn in banking
+        with XAI. International Journal of Advanced Computer Science and Applications, 16(5),
+        345–356.
+  •     Singh, H., et al. (2024) Investigating customer churn in banking: A machine learning
+        comparative analysis. Heliyon, 10(5), e15123.
+  •     Singh, P., et al. (2025) Ensemble-based customer churn prediction in banking: A voting
+        ensemble approach. Environmental Earth Sciences. Available at:
+        https://doi.org/10.1007/s43621-025-00807-8 (Accessed: 06 August 2025).
+  •     Singh, R., et al. (2023) Deep dive into churn prediction in the banking sector: The
+        challenge of hyperparameter selection and imbalanced learning. International Journal of
+        Finance & Economics, 28(3), 2150–2172. Available at: https://doi.org/10.1002/ijfe.3078
+        (Accessed: 10 August 2025).
+  •     Tékouabou, F. (2022) Towards explainable machine learning for bank churn prediction:
+        SMOTE + ensembles. Mathematics, 10(14), 2379. Available at:
+        https://doi.org/10.3390/math10142379 (Accessed: 10 August 2025).
+  •     Zhang, Y., et al. (2024) Customer churn prediction model based on hybrid neural
+        networks (CCP-Net). Scientific Reports, 14, 79603. Available at:
+        https://doi.org/10.1038/s41598-024-79603-9 (Accessed: 16 August 2025).
+
+Books
+
+  •     Molnar, C. (2020a) Interpretable machine learning: A guide for making black box models
+        explainable. 1st edn. Munich: Leanpub.
+  •     Molnar, C. (2020b) Interpretable machine learning [online]. Available at:
+        https://christophm.github.io/interpretable-ml-book/ (Accessed: 02 August 2025).
+
+Working Papers
+
+  •     Ma, T., van der Laan, E. and Reuvers, M. (2022) Interpretable machine learning for
+        predicting customer churn in retail banking. Tilburg University Working Paper.
+Conference Proceedings
+
+   •   Murindanyi, D., Nagwovuma, A., et al. (2025) Explainable ensemble learning and
+       trustworthy open AI for customer engagement prediction in retail banking. In:
+       Proceedings of the 2023 International Conference on Computing, Communication, and
+       Intelligent Systems (IC3). New York, NY: ACM.
+
+Datasets
+
+   •   Simronw (2023) Churn Prediction: Unlocking Retention Secrets [dataset]. Kaggle.
+       Available at: https://www.kaggle.com/datasets/simronw/churn-prediction-unlocking-
+       retention-secrets (Accessed: July 2025).
+
+
+APPENDIX
+                         Appendix A: Dataset Structure and Description
+           Variable                 Type           Description         Notes on Use in Churn
+                                                                              Prediction
+ Customer_ID                     Categorical    Unique identifier    Used only as key, not for
+                                 (ID)           for each customer    modelling
+ Age                             Numeric        Customer’s age       May capture churn patterns
+                                                                     across age groups
+ Gender                          Categorical    Male, Female,        Encoded to examine
+                                                Other                demographic churn effects
+ Account_Type                    Categorical    Checking,            Different account types may
+                                                Savings,             have different attrition risk
+                                                Investment
+ Account_Balance                 Numeric        Current balance in   Low balances may indicate
+                                                account              disengagement
+ Transaction_Date                Date           Date of last         Used to derive inactivity
+                                                transaction          period
+ Transaction_Amount              Numeric        Amount of last       Proxy for engagement level
+                                                transaction
+ Transaction_Type                Categorical    Deposit,             Encoded to reflect recent
+                                                Withdrawal, etc.     financial behaviour
+ Branch                          Categorical    Branch location      May reveal regional churn
+                                                                     hotspots
+ Loan_Amount                     Numeric        Value of any         High loans relative to
+                                                outstanding loan     income may correlate with
+                                                                     churn
+ Credit_Score                    Numeric        Financial health     Lower scores often correlate
+                                                indicator            with churn
+ Is_Employed                     Boolean        Employment           Employment instability may
+                                                status               increase churn likelihood
+ Annual_Income                   Numeric        Reported yearly      Used to derive loan-to-
+                                                income               income ratio
+ Marital_Status                   Categorical     Single, Married,    Marital status may affect
+                                                  etc.                retention behaviours
+ Region                           Categorical Customer’s              Can capture regional churn
+                                                  geographical        patterns
+                                                  region
+ Account_Open_Date                Date            Date account was Used to derive customer
+                                                  opened              tenure
+ Last_Transaction_Date            Date            Date of most        Used to compute inactivity
+                                                  recent transaction features
+ Number_of_Transactions           Numeric         Transactions in     Used for transaction
+                                                  past year           frequency feature
+ Account_Activity_Trend           Categorical Increasing,             Encodes behavioural
+                                                  Decreasing,         trajectory
+                                                  Stable
+ Customer_Service_Interactions Numeric            Number of           High volume may indicate
+                                                  customer service    dissatisfaction
+                                                  interactions
+ Recent_Complaints                Numeric         Count of            Strong negative churn
+                                                  complaints filed    predictor
+ Change_in_Account_Balance        Numeric         Net change in       High fluctuations may
+                                                  balance over time indicate instability
+ Customer_Satisfaction_Score      Ordinal (1– Self-reported           Lower scores correlate with
+                                  5)              satisfaction        higher churn
+ Churn_Label                      Binary          1 = churned, 0 =    Target variable
+                                                  not churned
+ Churn_Timeframe                  Numeric         Months since        Temporal churn intensity
+                                                  churn (if churned) measure
+These “notes on use in churn prediction” are solely based on previous studies and banking
+domain expertise. They will be validated during EDA.
+                           Appendix B: Proposed Engineered Features
+     Feature              Formula / Definition             Churn Rationale         Supporting
+                                                                                    Literature
+ Customer           Current Date –                      Short-tenure customers     AbdelAziz
+ Tenure             Account_Open_Date (months)          are more likely to         et al. (2025)
+                                                        churn; tenure is a proxy
+                                                        for loyalty.
+ Inactivity         Current Date –                      Longer inactivity          Ahmed et
+ Period             Last_Transaction_Date (days)        indicates disengagement    al. (2023)
+                                                        and higher churn risk.
+ Transaction        Number_of_Transactions ÷            Declining activity         Singh, H., et
+ Frequency          Tenure (months)                     frequency is a known       al. (2024)
+                                                        churn signal.
+ Average            Total Transaction Amount ÷          Smaller or irregular       Abbas et al.
+ Transaction        Number_of_Transactions              transactions may           (2023)
+ Size                                                   indicate lower
+                                                        engagement.
+ Balance          Change_in_Account_Balance             ÷ Account_Balance
+ Volatility Index
+ Loan-to-         Loan_Amount ÷ Annual_Income           High leverage signals     Ali, S., et
+ Income Ratio                                           repayment stress and      al. (2025)
+                                                        financial instability.
+ Complaint-to-       Recent_Complaints ÷                High complaint            Tékouabou
+ Interaction         (Customer_Service_Interactions + intensity indicates         (2022)
+ Ratio               1)                                 dissatisfaction.
+ Satisfaction        Composite of                       Low score + high          Singh, A., et
+ Gap Indicator       Customer_Satisfaction_Score and complaints = strong          al. (2024)
+                     Recent_Complaints                  churn predictor.
+ Region/Branch Derived churn rate per                   Captures                  Basit et al.
+ Churn Rate          region/branch from training data   geographical/regional     (2024)
+                                                        differences in churn
+                                                        behaviour.
+ Engagement          Weighted composite of activity     Holistic measure of       Abbas et al.
+ Index               frequency, satisfaction score, and customer commitment       (2023)
+                     complaint ratio                    and loyalty.
+These proposed derived features are solely based on previous studies and banking domain
+expertise. They will be validated during EDA.
+
