@@ -6,6 +6,15 @@
       "env": {
         "BIGQUERY_PROJECT": "javamaster19"
       }
+    },
+    "superset": {
+      "command": "uvx",
+      "args": ["mcp-superset", "--transport", "stdio"],
+      "env": {
+        "SUPERSET_BASE_URL": "http://localhost:8088",
+        "SUPERSET_USERNAME": "${SUPERSET_USERNAME}",
+        "SUPERSET_PASSWORD": "${SUPERSET_PASSWORD}"
+      }
     }
   }
 }
